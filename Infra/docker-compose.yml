@@ -1,0 +1,20 @@
+services:
+  db:
+    image: mcr.microsoft.com/mssql/server:2019-latest
+    environment:
+      - ACCEPT_EULA=Y
+      - SA_PASSWORD=0yKPj5Yp3Q85
+    ports:
+      - 1433:1433
+
+  init-db:
+    image: mcr.microsoft.com/mssql/server:2019-latest
+    depends_on:
+      - db
+    environment:
+      - DEBIAN_FRONTEND=noninteractive
+      - ACCEPT_EULA=Y
+    volumes:
+      - ./scripts:/scripts
+    user: root
+    command: /bin/bash -c "apt-get update && apt-get install -y mssql-tools unixodbc-dev && /opt/mssql-tools/bin/sqlcmd -S db -U sa -P 0yKPj5Yp3Q85 -i /scripts/cria_banco.sql"
