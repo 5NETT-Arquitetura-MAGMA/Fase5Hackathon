@@ -1,0 +1,6 @@
+@HealthMed.CommandAPI_HostAddress = http://localhost:5031
+
+GET {{HealthMed.CommandAPI_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

@@ -1,0 +1,24 @@
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.5.2.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HealthMed.Migrator", "HealthMed.Migrator.csproj", "{EEAAB94B-DA7D-5398-0849-6C31D6BE4F83}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{EEAAB94B-DA7D-5398-0849-6C31D6BE4F83}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EEAAB94B-DA7D-5398-0849-6C31D6BE4F83}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EEAAB94B-DA7D-5398-0849-6C31D6BE4F83}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EEAAB94B-DA7D-5398-0849-6C31D6BE4F83}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {CB5C17E8-CD51-4AD0-835F-D5924695F234}
+	EndGlobalSection
+EndGlobal
