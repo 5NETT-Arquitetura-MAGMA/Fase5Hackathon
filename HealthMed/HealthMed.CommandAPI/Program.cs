@@ -1,3 +1,6 @@
+using HealthMed.CommandAPI.Interfaces.Services;
+using HealthMed.CommandAPI.Services;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -5,6 +8,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
+builder.Services.AddScoped<IUserService, UserService>();
 
 var app = builder.Build();
 
