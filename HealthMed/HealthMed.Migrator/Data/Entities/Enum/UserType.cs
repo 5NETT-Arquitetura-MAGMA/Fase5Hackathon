@@ -2,6 +2,6 @@
 {
     public enum UserType
     {
-        Patient, Doctor
+        Patient, Doctor, Admin
     }
 }

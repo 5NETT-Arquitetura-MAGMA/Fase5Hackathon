@@ -1,8 +1,5 @@
 ﻿using HealthMed.Migrator.Data;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Migrations;
-using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -24,51 +21,24 @@ internal class Program
                 return 1;
             }
 
-            // Configurar o DbContext para injeção de dependência
-            var services = new ServiceCollection()
-                .AddDbContext<HealthMedDBContext>(options =>
-                    options.UseSqlServer(connectionString)) // Substitua pelo seu provider
-                .BuildServiceProvider();
+            var services = new ServiceCollection();
+            services.AddDbContext<HealthMedDBContext>(options =>
+                options.UseSqlServer(connectionString));
 
-            using var scope = services.CreateScope();
-            var dbContext = scope.ServiceProvider.GetRequiredService<HealthMedDBContext>();
-            var databaseCreator = dbContext.GetService<IDatabaseCreator>() as RelationalDatabaseCreator;
-            var migrator = scope.ServiceProvider.GetRequiredService<IMigrator>();
+            var serviceProvider = services.BuildServiceProvider();
 
-            if (args.Length > 0)
+            using (var scope = serviceProvider.CreateScope())
             {
-                string command = args[0].ToLower();
+                var dbContext = scope.ServiceProvider.GetRequiredService<HealthMedDBContext>();
+                //var migrator = scope.ServiceProvider.GetRequiredService<IMigrator>(); // Tenta obter o IMigrator
 
-                switch (command)
-                {
-                    case "update":
-                        string targetMigration = null;
-                        if (args.Length > 1 && args[1] == "--target" && args.Length > 2)
-                        {
-                            targetMigration = args[2];
-                            Console.WriteLine($"Aplicando migrações até: {targetMigration}");
-                            await migrator.MigrateAsync(targetMigration);
-                            Console.WriteLine("Migrações aplicadas com sucesso.");
-                        }
-                        else
-                        {
-                            Console.WriteLine("Aplicando as migrações pendentes...");
-                            await migrator.MigrateAsync();
-                            Console.WriteLine("Migrações aplicadas com sucesso.");
-                        }
-                        break;
+                //Console.WriteLine("IMigrator obtido com sucesso!");
 
-                    default:
-                        Console.WriteLine("Comando inválido.");
-                        Console.WriteLine("Uso: MigrationConsole [add --name <Nome>|remove|update [--target <Nome>]|list]");
-                        return 1;
-                }
-            }
-            else
-            {
-                Console.WriteLine("Nenhum comando especificado.");
-                Console.WriteLine("Uso: MigrationConsole [add --name <Nome>|remove|update [--target <Nome>]|list]");
-                return 1;
+                // Execute as operações de migração aqui
+                await dbContext.Database.MigrateAsync();
+
+                // Execute o seed do admin
+                await HealthMedDBContext.SeedAdminUser(scope.ServiceProvider);
             }
 
             return 0;

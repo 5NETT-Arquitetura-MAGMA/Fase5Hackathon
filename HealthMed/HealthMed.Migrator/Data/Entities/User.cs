@@ -26,6 +26,9 @@ namespace HealthMed.Migrator.Data.Entities
         public string Password { get; set; }
 
         [Required]
+        public string SecurityHash { get; set; }
+
+        [Required]
         public UserType Type { get; set; }
 
         public string? Specialty { get; set; }
