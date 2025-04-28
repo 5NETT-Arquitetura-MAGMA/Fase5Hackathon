@@ -1,4 +1,5 @@
-﻿using HealthMed.CommandAPI.Interfaces.Services;
+﻿using HealthMed.CommandAPI.Interfaces.Repository;
+using HealthMed.CommandAPI.Interfaces.Services;
 using HealthMed.CommandAPI.Utils;
 using HealthMed.Migrator.Data.Entities;
 using HealthMed.Migrator.Data.Entities.Enum;
@@ -7,8 +8,12 @@ namespace HealthMed.CommandAPI.Services
 {
     public class UserService : IUserService
     {
-        public UserService()
-        { }
+        private readonly IUserRepository _userRepository;
+
+        public UserService(IUserRepository userRepository)
+        {
+            _userRepository = userRepository;
+        }
 
         public async Task CreateUser(string name, string phoneNumber, string emailAddress, string login, string password)
         {
@@ -34,6 +39,7 @@ namespace HealthMed.CommandAPI.Services
                     Type = type,
                     UpdateTime = DateTime.Now
                 };
+                await _userRepository.CreateUser(user);
             }
             catch (Exception e)
             {

@@ -4,6 +4,7 @@ using HealthMed.Migrator.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace HealthMed.Migrator.Migrations
 {
     [DbContext(typeof(HealthMedDBContext))]
-    partial class HealthMedDBContextModelSnapshot : ModelSnapshot
+    [Migration("20250428234338_fixScheduleRelations")]
+    partial class fixScheduleRelations
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -51,7 +54,7 @@ namespace HealthMed.Migrator.Migrations
                     b.HasIndex("DoctorId", "DayOfWeek")
                         .IsUnique();
 
-                    b.ToTable("DoctorSchedules", (string)null);
+                    b.ToTable("DoctorSchedules");
                 });
 
             modelBuilder.Entity("HealthMed.Migrator.Data.Entities.MedicalConsultation", b =>
@@ -87,7 +90,7 @@ namespace HealthMed.Migrator.Migrations
 
                     b.HasIndex("PatientId");
 
-                    b.ToTable("MedicalConsultations", (string)null);
+                    b.ToTable("MedicalConsultations");
                 });
 
             modelBuilder.Entity("HealthMed.Migrator.Data.Entities.User", b =>
@@ -144,7 +147,7 @@ namespace HealthMed.Migrator.Migrations
 
                     b.HasIndex("PatientConsultationStatusId");
 
-                    b.ToTable("Users", (string)null);
+                    b.ToTable("Users");
                 });
 
             modelBuilder.Entity("HealthMed.Migrator.Data.Entities.DoctorSchedule", b =>

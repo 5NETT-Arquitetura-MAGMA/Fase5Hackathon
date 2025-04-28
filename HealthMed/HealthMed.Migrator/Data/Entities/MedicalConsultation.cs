@@ -3,6 +3,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace HealthMed.Migrator.Data.Entities
 {
+    [Table("MedicalConsultations")]
     public class MedicalConsultation : Model<Guid>
     {
         public MedicalConsultation()

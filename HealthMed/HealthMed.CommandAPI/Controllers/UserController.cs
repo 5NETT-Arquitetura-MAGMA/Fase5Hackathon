@@ -1,18 +1,23 @@
 ﻿using HealthMed.CommandAPI.Controllers.Dtos.User.Input;
+using HealthMed.CommandAPI.Interfaces.Services;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HealthMed.CommandAPI.Controllers
 {
     [ApiController]
-    [Route("[controller]")]
+    [Route("user")]
     public class UserController : ControllerBase
     {
-        public UserController()
+        private readonly IUserService _userService;
+
+        public UserController(IUserService userService)
         {
+            _userService = userService;
         }
 
         [HttpPost]
-        public async Task<ActionResult> CreateUser(CreateUserInput input)
+        [Route("createPatientUser")]
+        public async Task<ActionResult> CreatePatientUser(CreatePatientUserInput input)
         {
             try
             {
@@ -20,6 +25,29 @@ namespace HealthMed.CommandAPI.Controllers
                 {
                     return BadRequest(ModelState);
                 }
+
+                await _userService.CreateUser(input.Name, input.PhoneNumber, input.EmailAddress, input.Login, input.Password);
+
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
+        }
+
+        [HttpPost]
+        [Route("createMedicUser")]
+        public async Task<ActionResult> CreateMedicUser(CreateMedicUserInput input)
+        {
+            try
+            {
+                if (!ModelState.IsValid)
+                {
+                    return BadRequest(ModelState);
+                }
+
+                await _userService.CreateUser(input.Name, input.PhoneNumber, input.EmailAddress, input.Login, input.Password);
 
                 return Ok();
             }

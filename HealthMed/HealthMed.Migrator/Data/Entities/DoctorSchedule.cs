@@ -1,5 +1,8 @@
-﻿namespace HealthMed.Migrator.Data.Entities
+﻿using System.ComponentModel.DataAnnotations.Schema;
+
+namespace HealthMed.Migrator.Data.Entities
 {
+    [Table("DoctorSchedules")]
     public class DoctorSchedule : Model<Guid>
     {
         public DoctorSchedule()
@@ -10,6 +13,8 @@
         public DayOfWeek DayOfWeek { get; set; }
         public TimeSpan? StartTime { get; set; }
         public TimeSpan? EndTime { get; set; }
+
+        [ForeignKey("Doctor")]
         public Guid DoctorId { get; set; }
 
         #region Navigation
