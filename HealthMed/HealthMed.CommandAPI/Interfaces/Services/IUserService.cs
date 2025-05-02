@@ -2,6 +2,6 @@
 {
     public interface IUserService
     {
-        public Task CreateUser(string name, string phoneNumber, string emailAddress, string login, string password);
+        public Task CreateUser(string name, string phoneNumber, string emailAddress, string login, string password, string? specialty);
     }
 }

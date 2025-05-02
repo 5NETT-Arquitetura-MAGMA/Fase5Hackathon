@@ -15,7 +15,7 @@ namespace HealthMed.CommandAPI.Services
             _userRepository = userRepository;
         }
 
-        public async Task CreateUser(string name, string phoneNumber, string emailAddress, string login, string password)
+        public async Task CreateUser(string name, string phoneNumber, string emailAddress, string login, string password, string? specialty)
         {
             try
             {
@@ -35,7 +35,7 @@ namespace HealthMed.CommandAPI.Services
                     Id = Guid.NewGuid(),
                     PatientConsultationStatus = null,
                     SecurityHash = hash,
-                    Specialty = null,
+                    Specialty = specialty,
                     Type = type,
                     UpdateTime = DateTime.Now
                 };

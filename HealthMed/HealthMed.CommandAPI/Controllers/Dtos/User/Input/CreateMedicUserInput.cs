@@ -7,5 +7,8 @@ namespace HealthMed.CommandAPI.Controllers.Dtos.User.Input
         [RegularExpression(@"^CRM-[A-Z]{2} \d+$",
                    ErrorMessage = "O valor informado de login não é um CRM valido")]
         public new string Login { get; set; }
+
+        [Required]
+        public string Specialty { get; set; }
     }
 }
