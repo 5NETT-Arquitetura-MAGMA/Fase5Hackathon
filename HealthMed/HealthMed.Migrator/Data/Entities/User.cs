@@ -40,6 +40,7 @@ namespace HealthMed.Migrator.Data.Entities
         public virtual MedicalConsultation? DoctorConsultationStatus { get; set; }
         public virtual MedicalConsultation? PatientConsultationStatus { get; set; }
         public virtual List<DoctorSchedule>? DoctorSchedules { get; set; }
+        public virtual List<DoctorOffDays>? DoctorOffDays { get; set; }
 
         #endregion Navigation
     }

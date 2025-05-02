@@ -16,10 +16,19 @@ CREATE TABLE [__EFMigrationsHistory] (
 	ProductVersion nvarchar(32) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL,
 	CONSTRAINT PK___EFMigrationsHistory PRIMARY KEY (MigrationId)
 );
+
 INSERT INTO [__EFMigrationsHistory] (MigrationId,ProductVersion) VALUES
 	 (N'20250411011312_InitialMigration',N'9.0.4'),
-	 (N'20250411011712_AddSpecialityColumn',N'9.0.4');
+	 (N'20250411011712_AddSpecialityColumn',N'9.0.4'),
+	 (N'20250418130650_AddSecurityHash',N'9.0.4'),
+	 (N'20250428234338_fixScheduleRelations',N'9.0.4'),
+	 (N'20250502213918_AddDoctorOffDays',N'9.0.4');
 
+-- Users definição
+
+-- Drop table
+
+-- DROP TABLE Users;
 
 CREATE TABLE Users (
 	Id uniqueidentifier NOT NULL,
@@ -29,14 +38,31 @@ CREATE TABLE Users (
 	[Login] nvarchar(MAX) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL,
 	Password nvarchar(MAX) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL,
 	[Type] int NOT NULL,
-	DoctorConsultationStatus int NOT NULL,
-	PatientConsultationStatus int NOT NULL,
 	CreationTime datetime2 NOT NULL,
 	UpdateTime datetime2 NULL,
 	Specialty nvarchar(MAX) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+	SecurityHash nvarchar(MAX) COLLATE SQL_Latin1_General_CP1_CI_AS DEFAULT N'' NOT NULL,
+	DoctorConsultationStatusId uniqueidentifier NULL,
+	PatientConsultationStatusId uniqueidentifier NULL,
 	CONSTRAINT PK_Users PRIMARY KEY (Id)
 );
+ CREATE NONCLUSTERED INDEX IX_Users_DoctorConsultationStatusId ON fiap-hackathon.dbo.Users (  DoctorConsultationStatusId ASC  )  
+	 WITH (  PAD_INDEX = OFF ,FILLFACTOR = 100  ,SORT_IN_TEMPDB = OFF , IGNORE_DUP_KEY = OFF , STATISTICS_NORECOMPUTE = OFF , ONLINE = OFF , ALLOW_ROW_LOCKS = ON , ALLOW_PAGE_LOCKS = ON  )
+	 ON [PRIMARY ] ;
+ CREATE NONCLUSTERED INDEX IX_Users_PatientConsultationStatusId ON fiap-hackathon.dbo.Users (  PatientConsultationStatusId ASC  )  
+	 WITH (  PAD_INDEX = OFF ,FILLFACTOR = 100  ,SORT_IN_TEMPDB = OFF , IGNORE_DUP_KEY = OFF , STATISTICS_NORECOMPUTE = OFF , ONLINE = OFF , ALLOW_ROW_LOCKS = ON , ALLOW_PAGE_LOCKS = ON  )
+	 ON [PRIMARY ] ;
 
+
+-- Users chaves estrangeiras
+
+ALTER TABLE Users ADD CONSTRAINT FK_Users_MedicalConsultations_DoctorConsultationStatusId FOREIGN KEY (DoctorConsultationStatusId) REFERENCES MedicalConsultations(Id);
+ALTER TABLE Users ADD CONSTRAINT FK_Users_MedicalConsultations_PatientConsultationStatusId FOREIGN KEY (PatientConsultationStatusId) REFERENCES MedicalConsultations(Id);
+-- MedicalConsultations definição
+
+-- Drop table
+
+-- DROP TABLE MedicalConsultations;
 
 CREATE TABLE MedicalConsultations (
 	Id uniqueidentifier NOT NULL,
@@ -49,17 +75,24 @@ CREATE TABLE MedicalConsultations (
 	UpdateTime datetime2 NULL,
 	CONSTRAINT PK_MedicalConsultations PRIMARY KEY (Id)
 );
- CREATE NONCLUSTERED INDEX IX_MedicalConsultations_DoctorId ON MedicalConsultations (  DoctorId ASC  )  
+ CREATE NONCLUSTERED INDEX IX_MedicalConsultations_DoctorId ON fiap-hackathon.dbo.MedicalConsultations (  DoctorId ASC  )  
 	 WITH (  PAD_INDEX = OFF ,FILLFACTOR = 100  ,SORT_IN_TEMPDB = OFF , IGNORE_DUP_KEY = OFF , STATISTICS_NORECOMPUTE = OFF , ONLINE = OFF , ALLOW_ROW_LOCKS = ON , ALLOW_PAGE_LOCKS = ON  )
 	 ON [PRIMARY ] ;
- CREATE NONCLUSTERED INDEX IX_MedicalConsultations_PatientId ON MedicalConsultations (  PatientId ASC  )  
+ CREATE NONCLUSTERED INDEX IX_MedicalConsultations_PatientId ON fiap-hackathon.dbo.MedicalConsultations (  PatientId ASC  )  
 	 WITH (  PAD_INDEX = OFF ,FILLFACTOR = 100  ,SORT_IN_TEMPDB = OFF , IGNORE_DUP_KEY = OFF , STATISTICS_NORECOMPUTE = OFF , ONLINE = OFF , ALLOW_ROW_LOCKS = ON , ALLOW_PAGE_LOCKS = ON  )
 	 ON [PRIMARY ] ;
 
 
+-- MedicalConsultations chaves estrangeiras
 
 ALTER TABLE MedicalConsultations ADD CONSTRAINT FK_MedicalConsultations_Users_DoctorId FOREIGN KEY (DoctorId) REFERENCES Users(Id);
 ALTER TABLE MedicalConsultations ADD CONSTRAINT FK_MedicalConsultations_Users_PatientId FOREIGN KEY (PatientId) REFERENCES Users(Id);
+
+-- DoctorSchedules definição
+
+-- Drop table
+
+-- DROP TABLE DoctorSchedules;
 
 CREATE TABLE DoctorSchedules (
 	Id uniqueidentifier NOT NULL,
@@ -71,10 +104,34 @@ CREATE TABLE DoctorSchedules (
 	UpdateTime datetime2 NULL,
 	CONSTRAINT PK_DoctorSchedules PRIMARY KEY (Id)
 );
- CREATE UNIQUE NONCLUSTERED INDEX IX_DoctorSchedules_DoctorId_DayOfWeek ON DoctorSchedules (  DoctorId ASC  , DayOfWeek ASC  )  
+ CREATE UNIQUE NONCLUSTERED INDEX IX_DoctorSchedules_DoctorId_DayOfWeek ON fiap-hackathon.dbo.DoctorSchedules (  DoctorId ASC  , DayOfWeek ASC  )  
 	 WITH (  PAD_INDEX = OFF ,FILLFACTOR = 100  ,SORT_IN_TEMPDB = OFF , IGNORE_DUP_KEY = OFF , STATISTICS_NORECOMPUTE = OFF , ONLINE = OFF , ALLOW_ROW_LOCKS = ON , ALLOW_PAGE_LOCKS = ON  )
 	 ON [PRIMARY ] ;
 
 
+-- DoctorSchedules chaves estrangeiras
 
 ALTER TABLE DoctorSchedules ADD CONSTRAINT FK_DoctorSchedules_Users_DoctorId FOREIGN KEY (DoctorId) REFERENCES Users(Id) ON DELETE CASCADE;
+
+-- DoctorOffDays definição
+
+-- Drop table
+
+-- DROP TABLE DoctorOffDays;
+
+CREATE TABLE DoctorOffDays (
+	Id uniqueidentifier NOT NULL,
+	OffDate datetime2 NOT NULL,
+	DoctorId uniqueidentifier NOT NULL,
+	CreationTime datetime2 NOT NULL,
+	UpdateTime datetime2 NULL,
+	CONSTRAINT PK_DoctorOffDays PRIMARY KEY (Id)
+);
+ CREATE NONCLUSTERED INDEX IX_DoctorOffDays_DoctorId ON fiap-hackathon.dbo.DoctorOffDays (  DoctorId ASC  )  
+	 WITH (  PAD_INDEX = OFF ,FILLFACTOR = 100  ,SORT_IN_TEMPDB = OFF , IGNORE_DUP_KEY = OFF , STATISTICS_NORECOMPUTE = OFF , ONLINE = OFF , ALLOW_ROW_LOCKS = ON , ALLOW_PAGE_LOCKS = ON  )
+	 ON [PRIMARY ] ;
+
+
+-- DoctorOffDays chaves estrangeiras
+
+ALTER TABLE DoctorOffDays ADD CONSTRAINT FK_DoctorOffDays_Users_DoctorId FOREIGN KEY (DoctorId) REFERENCES Users(Id) ON DELETE CASCADE;

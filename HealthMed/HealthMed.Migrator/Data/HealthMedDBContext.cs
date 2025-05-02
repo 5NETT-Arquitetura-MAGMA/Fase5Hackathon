@@ -18,6 +18,7 @@ namespace HealthMed.Migrator.Data
         public DbSet<User> Users { get; set; }
         public DbSet<MedicalConsultation> MedicalConsultations { get; set; }
         public DbSet<DoctorSchedule> DoctorSchedules { get; set; }
+        public DbSet<DoctorOffDays> DoctorOffDays { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -26,6 +27,11 @@ namespace HealthMed.Migrator.Data
                 .WithOne(h => h.Doctor)
                 .HasForeignKey(h => h.DoctorId)
                 .OnDelete(DeleteBehavior.Cascade);
+            modelBuilder.Entity<User>()
+             .HasMany(u => u.DoctorOffDays)
+             .WithOne(h => h.Doctor)
+             .HasForeignKey(h => h.DoctorId)
+             .OnDelete(DeleteBehavior.Cascade);
             modelBuilder.Entity<DoctorSchedule>()
                 .HasIndex(h => new { h.DoctorId, h.DayOfWeek })
                 .IsUnique();

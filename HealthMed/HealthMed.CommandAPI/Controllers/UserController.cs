@@ -26,7 +26,7 @@ namespace HealthMed.CommandAPI.Controllers
                     return BadRequest(ModelState);
                 }
 
-                await _userService.CreateUser(input.Name, input.PhoneNumber, input.EmailAddress, input.Login, input.Password);
+                await _userService.CreateUser(input.Name, input.PhoneNumber, input.EmailAddress, input.Login, input.Password, null);
 
                 return Ok();
             }
