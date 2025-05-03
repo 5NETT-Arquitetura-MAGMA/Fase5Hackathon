@@ -1,4 +1,5 @@
-﻿using Dapper.FastCrud;
+﻿using Dapper;
+using Dapper.FastCrud;
 using HealthMed.CommandAPI.Interfaces.Repository;
 using HealthMed.Migrator.Data.Entities;
 using Microsoft.Data.SqlClient;
@@ -13,6 +14,26 @@ namespace HealthMed.CommandAPI.Repositories
         {
             _configuration = configuration;
             OrmConfiguration.DefaultDialect = SqlDialect.MsSql;
+        }
+
+        public async Task<User> Get(Guid id)
+        {
+            try
+            {
+                var user = new User();
+                var connectionString = _configuration.GetConnectionString("DefaultConnection");
+                await using (var con = new SqlConnection(connectionString))
+                {
+                    var query = $@"SELECT Id, Name, PhoneNumber, EmailAddress, [Login], Password, [Type], CreationTime, UpdateTime, Specialty, SecurityHash, DoctorConsultationStatusId, PatientConsultationStatusId
+                                    FROM Users where id = '{id}'";
+                    user = await con.QueryFirstOrDefaultAsync<User>(query);
+                }
+                return user;
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
         }
 
         public async Task<User> CreateUser(User user)

@@ -28,7 +28,7 @@ namespace HealthMed.CommandAPI.Controllers
 
                 await _userService.CreateUser(input.Name, input.PhoneNumber, input.EmailAddress, input.Login, input.Password, null);
 
-                return Ok();
+                return Created();
             }
             catch (Exception ex)
             {
@@ -49,7 +49,7 @@ namespace HealthMed.CommandAPI.Controllers
 
                 await _userService.CreateUser(input.Name, input.PhoneNumber, input.EmailAddress, input.Login, input.Password, input.Specialty);
 
-                return Ok();
+                return Created();
             }
             catch (Exception ex)
             {
