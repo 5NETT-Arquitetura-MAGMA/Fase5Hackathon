@@ -19,6 +19,33 @@ namespace HealthMed.CommandAPI.Controllers
         }
 
         [HttpPost]
+        [Route("createOffDay")]
+        public async Task<ActionResult> CreateOffDay(CreateOffDayInput input)
+        {
+            try
+            {
+                if (!ModelState.IsValid)
+                {
+                    return BadRequest(ModelState);
+                }
+                var user = await _userService.Get(input.DoctorId);
+                if (user != null && Guid.Empty != user.Id && user.Type == UserType.Doctor)
+                {
+                    await _doctorService.CreateOffDay(input.DoctorId, input.OffDate);
+                    return Created();
+                }
+                else
+                {
+                    return NotFound("Médico não encontrado");
+                }
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
+        }
+
+        [HttpPost]
         [Route("createSchedule")]
         public async Task<ActionResult> CreateSchedule(CreateScheduleInput input)
         {

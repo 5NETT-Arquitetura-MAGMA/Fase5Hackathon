@@ -15,6 +15,23 @@ namespace HealthMed.CommandAPI.Repositories
             OrmConfiguration.DefaultDialect = SqlDialect.MsSql;
         }
 
+        public async Task<DoctorOffDays> CreateOffDay(DoctorOffDays offDay)
+        {
+            try
+            {
+                var connectionString = _configuration.GetConnectionString("DefaultConnection");
+                await using (var con = new SqlConnection(connectionString))
+                {
+                    await con.InsertAsync(offDay);
+                }
+                return offDay;
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
+        }
+
         public async Task<DoctorSchedule> CreateSchedule(DoctorSchedule schedule)
         {
             try
