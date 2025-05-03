@@ -25,10 +25,17 @@ namespace HealthMed.CommandAPI.Controllers
                 {
                     return BadRequest(ModelState);
                 }
+                var exists = await _userService.GetUserByCPF(input.Login);
+                if (exists != null)
+                {
+                    return BadRequest("Paciente ja existe em nossa base de dados");
+                }
+                else
+                {
+                    await _userService.CreateUser(input.Name, input.PhoneNumber, input.EmailAddress, input.Login, input.Password, null);
 
-                await _userService.CreateUser(input.Name, input.PhoneNumber, input.EmailAddress, input.Login, input.Password, null);
-
-                return Created();
+                    return Created();
+                }
             }
             catch (Exception ex)
             {
@@ -46,10 +53,17 @@ namespace HealthMed.CommandAPI.Controllers
                 {
                     return BadRequest(ModelState);
                 }
+                var exists = await _userService.GetDoctorByCRM(input.Login);
+                if (exists != null)
+                {
+                    return BadRequest("Medico ja existe em nossa base de dados");
+                }
+                else
+                {
+                    await _userService.CreateUser(input.Name, input.PhoneNumber, input.EmailAddress, input.Login, input.Password, input.Specialty);
 
-                await _userService.CreateUser(input.Name, input.PhoneNumber, input.EmailAddress, input.Login, input.Password, input.Specialty);
-
-                return Created();
+                    return Created();
+                }
             }
             catch (Exception ex)
             {

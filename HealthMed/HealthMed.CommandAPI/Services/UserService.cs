@@ -15,6 +15,30 @@ namespace HealthMed.CommandAPI.Services
             _userRepository = userRepository;
         }
 
+        public async Task<User> GetUserByCPF(string cpf)
+        {
+            try
+            {
+                return await _userRepository.GetUserByCPF(cpf);
+            }
+            catch (Exception e)
+            {
+                throw;
+            }
+        }
+
+        public async Task<User> GetDoctorByCRM(string crm)
+        {
+            try
+            {
+                return await _userRepository.GetDoctorByCRM(crm);
+            }
+            catch (Exception e)
+            {
+                throw;
+            }
+        }
+
         public async Task<User> Get(Guid id)
         {
             try

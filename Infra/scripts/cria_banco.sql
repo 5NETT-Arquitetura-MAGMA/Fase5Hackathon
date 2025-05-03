@@ -46,18 +46,17 @@ CREATE TABLE Users (
 	PatientConsultationStatusId uniqueidentifier NULL,
 	CONSTRAINT PK_Users PRIMARY KEY (Id)
 );
- CREATE NONCLUSTERED INDEX IX_Users_DoctorConsultationStatusId ON fiap-hackathon.dbo.Users (  DoctorConsultationStatusId ASC  )  
+ CREATE NONCLUSTERED INDEX IX_Users_DoctorConsultationStatusId ON Users (  DoctorConsultationStatusId ASC  )  
 	 WITH (  PAD_INDEX = OFF ,FILLFACTOR = 100  ,SORT_IN_TEMPDB = OFF , IGNORE_DUP_KEY = OFF , STATISTICS_NORECOMPUTE = OFF , ONLINE = OFF , ALLOW_ROW_LOCKS = ON , ALLOW_PAGE_LOCKS = ON  )
 	 ON [PRIMARY ] ;
- CREATE NONCLUSTERED INDEX IX_Users_PatientConsultationStatusId ON fiap-hackathon.dbo.Users (  PatientConsultationStatusId ASC  )  
+ CREATE NONCLUSTERED INDEX IX_Users_PatientConsultationStatusId ON Users (  PatientConsultationStatusId ASC  )  
 	 WITH (  PAD_INDEX = OFF ,FILLFACTOR = 100  ,SORT_IN_TEMPDB = OFF , IGNORE_DUP_KEY = OFF , STATISTICS_NORECOMPUTE = OFF , ONLINE = OFF , ALLOW_ROW_LOCKS = ON , ALLOW_PAGE_LOCKS = ON  )
 	 ON [PRIMARY ] ;
 
 
 -- Users chaves estrangeiras
 
-ALTER TABLE Users ADD CONSTRAINT FK_Users_MedicalConsultations_DoctorConsultationStatusId FOREIGN KEY (DoctorConsultationStatusId) REFERENCES MedicalConsultations(Id);
-ALTER TABLE Users ADD CONSTRAINT FK_Users_MedicalConsultations_PatientConsultationStatusId FOREIGN KEY (PatientConsultationStatusId) REFERENCES MedicalConsultations(Id);
+
 -- MedicalConsultations definição
 
 -- Drop table
@@ -75,10 +74,10 @@ CREATE TABLE MedicalConsultations (
 	UpdateTime datetime2 NULL,
 	CONSTRAINT PK_MedicalConsultations PRIMARY KEY (Id)
 );
- CREATE NONCLUSTERED INDEX IX_MedicalConsultations_DoctorId ON fiap-hackathon.dbo.MedicalConsultations (  DoctorId ASC  )  
+ CREATE NONCLUSTERED INDEX IX_MedicalConsultations_DoctorId ON MedicalConsultations (  DoctorId ASC  )  
 	 WITH (  PAD_INDEX = OFF ,FILLFACTOR = 100  ,SORT_IN_TEMPDB = OFF , IGNORE_DUP_KEY = OFF , STATISTICS_NORECOMPUTE = OFF , ONLINE = OFF , ALLOW_ROW_LOCKS = ON , ALLOW_PAGE_LOCKS = ON  )
 	 ON [PRIMARY ] ;
- CREATE NONCLUSTERED INDEX IX_MedicalConsultations_PatientId ON fiap-hackathon.dbo.MedicalConsultations (  PatientId ASC  )  
+ CREATE NONCLUSTERED INDEX IX_MedicalConsultations_PatientId ON MedicalConsultations (  PatientId ASC  )  
 	 WITH (  PAD_INDEX = OFF ,FILLFACTOR = 100  ,SORT_IN_TEMPDB = OFF , IGNORE_DUP_KEY = OFF , STATISTICS_NORECOMPUTE = OFF , ONLINE = OFF , ALLOW_ROW_LOCKS = ON , ALLOW_PAGE_LOCKS = ON  )
 	 ON [PRIMARY ] ;
 
@@ -87,6 +86,8 @@ CREATE TABLE MedicalConsultations (
 
 ALTER TABLE MedicalConsultations ADD CONSTRAINT FK_MedicalConsultations_Users_DoctorId FOREIGN KEY (DoctorId) REFERENCES Users(Id);
 ALTER TABLE MedicalConsultations ADD CONSTRAINT FK_MedicalConsultations_Users_PatientId FOREIGN KEY (PatientId) REFERENCES Users(Id);
+ALTER TABLE Users ADD CONSTRAINT FK_Users_MedicalConsultations_DoctorConsultationStatusId FOREIGN KEY (DoctorConsultationStatusId) REFERENCES MedicalConsultations(Id);
+ALTER TABLE Users ADD CONSTRAINT FK_Users_MedicalConsultations_PatientConsultationStatusId FOREIGN KEY (PatientConsultationStatusId) REFERENCES MedicalConsultations(Id);
 
 -- DoctorSchedules definição
 
@@ -104,7 +105,7 @@ CREATE TABLE DoctorSchedules (
 	UpdateTime datetime2 NULL,
 	CONSTRAINT PK_DoctorSchedules PRIMARY KEY (Id)
 );
- CREATE UNIQUE NONCLUSTERED INDEX IX_DoctorSchedules_DoctorId_DayOfWeek ON fiap-hackathon.dbo.DoctorSchedules (  DoctorId ASC  , DayOfWeek ASC  )  
+ CREATE UNIQUE NONCLUSTERED INDEX IX_DoctorSchedules_DoctorId_DayOfWeek ON DoctorSchedules (  DoctorId ASC  , DayOfWeek ASC  )  
 	 WITH (  PAD_INDEX = OFF ,FILLFACTOR = 100  ,SORT_IN_TEMPDB = OFF , IGNORE_DUP_KEY = OFF , STATISTICS_NORECOMPUTE = OFF , ONLINE = OFF , ALLOW_ROW_LOCKS = ON , ALLOW_PAGE_LOCKS = ON  )
 	 ON [PRIMARY ] ;
 
@@ -127,7 +128,7 @@ CREATE TABLE DoctorOffDays (
 	UpdateTime datetime2 NULL,
 	CONSTRAINT PK_DoctorOffDays PRIMARY KEY (Id)
 );
- CREATE NONCLUSTERED INDEX IX_DoctorOffDays_DoctorId ON fiap-hackathon.dbo.DoctorOffDays (  DoctorId ASC  )  
+ CREATE NONCLUSTERED INDEX IX_DoctorOffDays_DoctorId ON DoctorOffDays (  DoctorId ASC  )  
 	 WITH (  PAD_INDEX = OFF ,FILLFACTOR = 100  ,SORT_IN_TEMPDB = OFF , IGNORE_DUP_KEY = OFF , STATISTICS_NORECOMPUTE = OFF , ONLINE = OFF , ALLOW_ROW_LOCKS = ON , ALLOW_PAGE_LOCKS = ON  )
 	 ON [PRIMARY ] ;
 
@@ -135,3 +136,19 @@ CREATE TABLE DoctorOffDays (
 -- DoctorOffDays chaves estrangeiras
 
 ALTER TABLE DoctorOffDays ADD CONSTRAINT FK_DoctorOffDays_Users_DoctorId FOREIGN KEY (DoctorId) REFERENCES Users(Id) ON DELETE CASCADE;
+
+CREATE FUNCTION dbo.CleanLogin (@login VARCHAR(255))
+RETURNS VARCHAR(255)
+AS
+BEGIN
+    -- Remover espaços
+    SET @login = REPLACE(@login, ' ', '');
+
+    -- Remover caracteres não alfanuméricos
+    WHILE PATINDEX('%[^a-zA-Z0-9]%', @login) > 0
+    BEGIN
+        SET @login = STUFF(@login, PATINDEX('%[^a-zA-Z0-9]%', @login), 1, '');
+    END
+
+    RETURN @login;
+END;
