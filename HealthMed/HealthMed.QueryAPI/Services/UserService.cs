@@ -25,5 +25,41 @@ namespace HealthMed.QueryAPI.Services
                 throw;
             }
         }
+
+        public async Task<List<DoctorSchedule>> GetWorkDays(Guid id)
+        {
+            try
+            {
+                return await _doctorRepository.GetWorkDays(id);
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
+        }
+
+        public async Task<List<DoctorOffDays>> GetOffDays(Guid id)
+        {
+            try
+            {
+                return await _doctorRepository.GetOffDays(id);
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
+        }
+
+        public async Task<User> Get(Guid id)
+        {
+            try
+            {
+                return await _doctorRepository.Get(id);
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
+        }
     }
 }

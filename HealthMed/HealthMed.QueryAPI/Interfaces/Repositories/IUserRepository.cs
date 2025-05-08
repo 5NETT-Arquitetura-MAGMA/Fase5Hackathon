@@ -5,5 +5,11 @@ namespace HealthMed.QueryAPI.Interfaces.Repositories
     public interface IUserRepository
     {
         public Task<(List<User>, int)> GetAllDoctors(Guid? doctorId, int pageSize, int pageNumber, string? sortBy, string? sortDirection);
+
+        public Task<User> Get(Guid id);
+
+        public Task<List<DoctorSchedule>> GetWorkDays(Guid id);
+
+        public Task<List<DoctorOffDays>> GetOffDays(Guid id);
     }
 }

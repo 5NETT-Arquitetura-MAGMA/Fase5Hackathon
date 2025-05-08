@@ -17,6 +17,57 @@ namespace HealthMed.QueryAPI.Repositories
             OrmConfiguration.DefaultDialect = SqlDialect.MsSql;
         }
 
+        public async Task<List<DoctorOffDays>> GetOffDays(Guid id)
+        {
+            try
+            {
+                var connectionString = _configuration.GetConnectionString("DefaultConnection");
+                await using (var con = new SqlConnection(connectionString))
+                {
+                    var sql = $"SELECT * FROM DoctorOffDays where DoctorId = '{id}'";
+                    return (await con.QueryAsync<DoctorOffDays>(sql)).ToList();
+                }
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
+        }
+
+        public async Task<List<DoctorSchedule>> GetWorkDays(Guid id)
+        {
+            try
+            {
+                var connectionString = _configuration.GetConnectionString("DefaultConnection");
+                await using (var con = new SqlConnection(connectionString))
+                {
+                    var sql = $"SELECT * FROM DoctorSchedules where DoctorId = '{id}'";
+                    return (await con.QueryAsync<DoctorSchedule>(sql)).ToList();
+                }
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
+        }
+
+        public async Task<User> Get(Guid id)
+        {
+            try
+            {
+                var connectionString = _configuration.GetConnectionString("DefaultConnection");
+                await using (var con = new SqlConnection(connectionString))
+                {
+                    var sql = $"SELECT * FROM Users where id = '{id}'";
+                    return await con.QueryFirstOrDefaultAsync<User>(sql);
+                }
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
+        }
+
         public async Task<(List<User>, int)> GetAllDoctors(Guid? doctorId, int pageSize, int pageNumber, string sortBy = "CreationTime", string sortDirection = "asc")
         {
             try
