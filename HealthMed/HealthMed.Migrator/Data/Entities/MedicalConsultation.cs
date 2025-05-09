@@ -18,6 +18,7 @@ namespace HealthMed.Migrator.Data.Entities
         public Guid PatientId { get; set; }
 
         public DateTime ScheduledDate { get; set; }
+        public TimeSpan ScheduleTime { get; set; }
         public ConsultationStatus Status { get; set; }
         public string? Justification { get; set; }
 

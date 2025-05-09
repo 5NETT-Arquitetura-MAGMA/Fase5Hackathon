@@ -50,6 +50,18 @@ namespace HealthMed.QueryAPI.Services
             }
         }
 
+        public async Task<User> Get(string login)
+        {
+            try
+            {
+                return await _doctorRepository.Get(login);
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
+        }
+
         public async Task<User> Get(Guid id)
         {
             try

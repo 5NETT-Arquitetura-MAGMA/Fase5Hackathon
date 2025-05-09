@@ -3,10 +3,12 @@ using HealthMed.QueryAPI.Controllers.Dtos.Doctor.Input;
 using HealthMed.QueryAPI.Controllers.Dtos.Doctor.Output;
 using HealthMed.QueryAPI.Interfaces.Services;
 using HealthMed.QueryAPI.Utils;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HealthMed.QueryAPI.Controllers
 {
+    [Authorize]
     [ApiController]
     [Route("doctor")]
     public class DoctorController : ControllerBase

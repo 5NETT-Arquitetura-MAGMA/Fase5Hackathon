@@ -8,6 +8,8 @@ namespace HealthMed.QueryAPI.Interfaces.Services
 
         public Task<User> Get(Guid id);
 
+        public Task<User> Get(string login);
+
         public Task<List<DoctorSchedule>> GetWorkDays(Guid id);
 
         public Task<List<DoctorOffDays>> GetOffDays(Guid id);

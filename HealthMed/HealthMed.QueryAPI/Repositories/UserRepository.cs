@@ -68,6 +68,23 @@ namespace HealthMed.QueryAPI.Repositories
             }
         }
 
+        public async Task<User> Get(string login)
+        {
+            try
+            {
+                var connectionString = _configuration.GetConnectionString("DefaultConnection");
+                await using (var con = new SqlConnection(connectionString))
+                {
+                    var sql = $"SELECT * FROM Users where Login = '{login}'";
+                    return await con.QueryFirstOrDefaultAsync<User>(sql);
+                }
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
+        }
+
         public async Task<(List<User>, int)> GetAllDoctors(Guid? doctorId, int pageSize, int pageNumber, string sortBy = "CreationTime", string sortDirection = "asc")
         {
             try
