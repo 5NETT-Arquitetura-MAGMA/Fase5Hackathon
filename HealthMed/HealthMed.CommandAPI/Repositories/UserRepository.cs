@@ -59,6 +59,26 @@ namespace HealthMed.CommandAPI.Repositories
             }
         }
 
+        public async Task<User> Get(string login)
+        {
+            try
+            {
+                var user = new User();
+                var connectionString = _configuration.GetConnectionString("DefaultConnection");
+                await using (var con = new SqlConnection(connectionString))
+                {
+                    var query = $@"SELECT Id, Name, PhoneNumber, EmailAddress, [Login], Password, [Type], CreationTime, UpdateTime, Specialty, SecurityHash, DoctorConsultationStatusId, PatientConsultationStatusId
+                                    FROM Users where Login = '{login}'";
+                    user = await con.QueryFirstOrDefaultAsync<User>(query);
+                }
+                return user;
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
+        }
+
         public async Task<User> Get(Guid id)
         {
             try

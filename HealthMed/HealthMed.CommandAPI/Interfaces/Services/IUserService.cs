@@ -8,6 +8,8 @@ namespace HealthMed.CommandAPI.Interfaces.Services
 
         public Task<User> Get(Guid id);
 
+        public Task<User> Get(string login);
+
         public Task<User> GetDoctorByCRM(string crm);
 
         public Task<User> GetUserByCPF(string cpf);

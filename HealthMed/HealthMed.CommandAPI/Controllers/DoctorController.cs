@@ -1,7 +1,9 @@
 ﻿using HealthMed.CommandAPI.Controllers.Dtos.Doctor.Input;
 using HealthMed.CommandAPI.Interfaces.Services;
+using HealthMed.Migrator.Data.Entities;
 using HealthMed.Migrator.Data.Entities.Enum;
 using Microsoft.AspNetCore.Mvc;
+using System.IdentityModel.Tokens.Jwt;
 
 namespace HealthMed.CommandAPI.Controllers
 {
@@ -19,6 +21,46 @@ namespace HealthMed.CommandAPI.Controllers
         }
 
         [HttpPost]
+        [Route("UpdateConsultation")]
+        public async Task<ActionResult> UpdateConsultation(UpdateConsultationInput input)
+        {
+            try
+            {
+                User user = null;
+                var tokenHandler = new JwtSecurityTokenHandler();
+                var token = HttpContext.Request.Headers["Authorization"].FirstOrDefault()?.Split(" ").Last();
+                var tokenS = tokenHandler.ReadToken(token) as JwtSecurityToken;
+                if (tokenS != null)
+                {
+                    var userName = tokenS.Claims.First(claim => claim.Type == "userName").Value;
+                    if (!string.IsNullOrEmpty(userName))
+                    {
+                        user = await _userService.Get(userName);
+                    }
+                }
+                if (user == null)
+                {
+                    return StatusCode(401);
+                }
+                if (user.Type != UserType.Doctor)
+                {
+                    return StatusCode(401);
+                }
+                var consultation = await _doctorService.GetConsultation(input.ConsultationId);
+                if (consultation == null)
+                {
+                    return NotFound(new { message = "Consulta não encontrada" });
+                }
+                await _doctorService.UpdateConsultation(input.ConsultationId, input.Accepted, input.Justification);
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
+        }
+
+        [HttpPost]
         [Route("createOffDay")]
         public async Task<ActionResult> CreateOffDay(CreateOffDayInput input)
         {
@@ -28,7 +70,27 @@ namespace HealthMed.CommandAPI.Controllers
                 {
                     return BadRequest(ModelState);
                 }
-                var user = await _userService.Get(input.DoctorId);
+                User user = null;
+                var tokenHandler = new JwtSecurityTokenHandler();
+                var token = HttpContext.Request.Headers["Authorization"].FirstOrDefault()?.Split(" ").Last();
+                var tokenS = tokenHandler.ReadToken(token) as JwtSecurityToken;
+                if (tokenS != null)
+                {
+                    var userName = tokenS.Claims.First(claim => claim.Type == "userName").Value;
+                    if (!string.IsNullOrEmpty(userName))
+                    {
+                        user = await _userService.Get(userName);
+                    }
+                }
+                if (user == null)
+                {
+                    return StatusCode(401);
+                }
+                if (user.Type != UserType.Doctor)
+                {
+                    return StatusCode(401);
+                }
+
                 if (user != null && Guid.Empty != user.Id && user.Type == UserType.Doctor)
                 {
                     await _doctorService.CreateOffDay(input.DoctorId, input.OffDate);
@@ -55,7 +117,26 @@ namespace HealthMed.CommandAPI.Controllers
                 {
                     return BadRequest(ModelState);
                 }
-                var user = await _userService.Get(input.DoctorId);
+                User user = null;
+                var tokenHandler = new JwtSecurityTokenHandler();
+                var token = HttpContext.Request.Headers["Authorization"].FirstOrDefault()?.Split(" ").Last();
+                var tokenS = tokenHandler.ReadToken(token) as JwtSecurityToken;
+                if (tokenS != null)
+                {
+                    var userName = tokenS.Claims.First(claim => claim.Type == "userName").Value;
+                    if (!string.IsNullOrEmpty(userName))
+                    {
+                        user = await _userService.Get(userName);
+                    }
+                }
+                if (user == null)
+                {
+                    return StatusCode(401);
+                }
+                if (user.Type != UserType.Doctor)
+                {
+                    return StatusCode(401);
+                }
                 if (user != null && Guid.Empty != user.Id && user.Type == UserType.Doctor)
                 {
                     await _doctorService.CreateSchedule(input.DoctorId, input.DayOfWeek, input.StartTime, input.EndTime);

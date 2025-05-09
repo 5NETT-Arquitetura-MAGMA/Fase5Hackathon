@@ -51,6 +51,18 @@ namespace HealthMed.CommandAPI.Services
             }
         }
 
+        public async Task<User> Get(string login)
+        {
+            try
+            {
+                return await _userRepository.Get(login);
+            }
+            catch (Exception e)
+            {
+                throw;
+            }
+        }
+
         public async Task CreateUser(string name, string phoneNumber, string emailAddress, string login, string password, string? specialty)
         {
             try

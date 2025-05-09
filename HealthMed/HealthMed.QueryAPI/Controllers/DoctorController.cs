@@ -1,10 +1,13 @@
-﻿using HealthMed.QueryAPI.Controllers.Dtos.Doctor;
+﻿using HealthMed.Migrator.Data.Entities;
+using HealthMed.Migrator.Data.Entities.Enum;
+using HealthMed.QueryAPI.Controllers.Dtos.Doctor;
 using HealthMed.QueryAPI.Controllers.Dtos.Doctor.Input;
 using HealthMed.QueryAPI.Controllers.Dtos.Doctor.Output;
 using HealthMed.QueryAPI.Interfaces.Services;
 using HealthMed.QueryAPI.Utils;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.IdentityModel.Tokens.Jwt;
 
 namespace HealthMed.QueryAPI.Controllers
 {
@@ -30,7 +33,27 @@ namespace HealthMed.QueryAPI.Controllers
                 {
                     return BadRequest(ModelState);
                 }
-                var doctor = await _service.Get(doctorId);
+                User doctor = null;
+                var tokenHandler = new JwtSecurityTokenHandler();
+                var token = HttpContext.Request.Headers["Authorization"].FirstOrDefault()?.Split(" ").Last();
+                var tokenS = tokenHandler.ReadToken(token) as JwtSecurityToken;
+                if (tokenS != null)
+                {
+                    var userName = tokenS.Claims.First(claim => claim.Type == "userName").Value;
+                    if (!string.IsNullOrEmpty(userName))
+                    {
+                        doctor = await _service.Get(userName);
+                    }
+                }
+                if (doctor == null)
+                {
+                    return StatusCode(401);
+                }
+                if (doctor.Type != UserType.Patient)
+                {
+                    return StatusCode(401);
+                }
+
                 if (doctor != null)
                 {
                     var output = new PaginationOutput<ScheduleInfoDto>();
@@ -127,6 +150,28 @@ namespace HealthMed.QueryAPI.Controllers
                 {
                     return BadRequest(ModelState);
                 }
+
+                User doctor = null;
+                var tokenHandler = new JwtSecurityTokenHandler();
+                var token = HttpContext.Request.Headers["Authorization"].FirstOrDefault()?.Split(" ").Last();
+                var tokenS = tokenHandler.ReadToken(token) as JwtSecurityToken;
+                if (tokenS != null)
+                {
+                    var userName = tokenS.Claims.First(claim => claim.Type == "userName").Value;
+                    if (!string.IsNullOrEmpty(userName))
+                    {
+                        doctor = await _service.Get(userName);
+                    }
+                }
+                if (doctor == null)
+                {
+                    return StatusCode(401);
+                }
+                if (doctor.Type != UserType.Patient)
+                {
+                    return StatusCode(401);
+                }
+
                 var output = new PaginationOutput<DoctorDto>();
                 var doctors = new List<DoctorDto>();
                 var (users, total) = await _service.GetAllDoctors(param.DoctorId, param.PageSize, param.PageNumber, param.SortBy, param.SortDirection);
