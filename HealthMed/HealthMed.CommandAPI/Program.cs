@@ -4,11 +4,21 @@ using HealthMed.CommandAPI.Repositories;
 using HealthMed.CommandAPI.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
+using Prometheus;
+using Serilog;
+using Serilog.Exceptions;
 using System.Text;
+
+Log.Logger = new LoggerConfiguration()
+    .Enrich.FromLogContext()
+    .Enrich.WithExceptionDetails()
+    .WriteTo.Console(outputTemplate: "[{Timestamp:HH:mm:ss} {Level:u3}] {Message:lj}{NewLine}{Exception}")
+    .MinimumLevel.Debug()
+    .CreateLogger();
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
+builder.Host.UseSerilog();
 
 builder.Services.AddControllers();
 
@@ -43,7 +53,9 @@ builder.Services.AddAuthorization();
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
+app.UseHttpMetrics();
+app.MapMetrics();
+
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();

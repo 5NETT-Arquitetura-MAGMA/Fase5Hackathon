@@ -9,10 +9,12 @@ namespace HealthMed.CommandAPI.Controllers
     public class UserController : ControllerBase
     {
         private readonly IUserService _userService;
+        private readonly ILogger<UserController> _logger;
 
-        public UserController(IUserService userService)
+        public UserController(IUserService userService, ILogger<UserController> logger)
         {
             _userService = userService;
+            _logger = logger;
         }
 
         [HttpPost]
@@ -39,7 +41,8 @@ namespace HealthMed.CommandAPI.Controllers
             }
             catch (Exception ex)
             {
-                throw;
+                _logger.LogError(ex, ex.Message);
+                return StatusCode(500, new { message = "Ocorreu um erro inesperado" });
             }
         }
 
@@ -67,7 +70,8 @@ namespace HealthMed.CommandAPI.Controllers
             }
             catch (Exception ex)
             {
-                throw;
+                _logger.LogError(ex, ex.Message);
+                return StatusCode(500, new { message = "Ocorreu um erro inesperado" });
             }
         }
     }

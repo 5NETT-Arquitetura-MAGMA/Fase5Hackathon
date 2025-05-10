@@ -18,11 +18,13 @@ namespace HealthMed.QueryAPI.Controllers
     {
         private readonly IUserService _userService;
         private readonly IDoctorService _doctorService;
+        private readonly ILogger<PatientController> _logger;
 
-        public PatientController(IUserService userService, IDoctorService doctorService)
+        public PatientController(IUserService userService, IDoctorService doctorService, ILogger<PatientController> logger)
         {
             _userService = userService;
             _doctorService = doctorService;
+            _logger = logger;
         }
 
         [HttpGet]
@@ -94,7 +96,8 @@ namespace HealthMed.QueryAPI.Controllers
             }
             catch (Exception ex)
             {
-                throw;
+                _logger.LogError(ex, ex.Message);
+                return StatusCode(500, new { message = "Ocorreu um erro inesperado" });
             }
         }
     }

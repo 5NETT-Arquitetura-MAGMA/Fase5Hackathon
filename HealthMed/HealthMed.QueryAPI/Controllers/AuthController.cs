@@ -16,11 +16,13 @@ namespace HealthMed.QueryAPI.Controllers
     {
         private readonly IConfiguration _configuration;
         private readonly IUserService _service;
+        private readonly ILogger<AuthController> _logger;
 
-        public AuthController(IConfiguration configuration, IUserService service)
+        public AuthController(IConfiguration configuration, IUserService service, ILogger<AuthController> logger)
         {
             _configuration = configuration;
             _service = service;
+            _logger = logger;
         }
 
         [AllowAnonymous]
@@ -48,7 +50,8 @@ namespace HealthMed.QueryAPI.Controllers
             }
             catch (Exception ex)
             {
-                throw;
+                _logger.LogError(ex, ex.Message);
+                return StatusCode(500, new { message = "Ocorreu um erro inesperado" });
             }
         }
 
