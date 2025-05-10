@@ -6,55 +6,18 @@ namespace HealthMed.QueryAPI.Services
 {
     public class UserService : IUserService
     {
-        private readonly IUserRepository _doctorRepository;
+        private readonly IUserRepository _repository;
 
-        public UserService(IUserRepository doctorRepository)
+        public UserService(IUserRepository repository)
         {
-            _doctorRepository = doctorRepository;
-        }
-
-        public async Task<(List<User>, int)> GetAllDoctors(Guid? doctorId, int pageSize, int pageNumber, string? sortBy, string? sortDirection)
-        {
-            try
-            {
-                var (users, total) = await _doctorRepository.GetAllDoctors(doctorId, pageSize, pageNumber, sortBy, sortDirection);
-                return (users, total);
-            }
-            catch (Exception ex)
-            {
-                throw;
-            }
-        }
-
-        public async Task<List<DoctorSchedule>> GetWorkDays(Guid id)
-        {
-            try
-            {
-                return await _doctorRepository.GetWorkDays(id);
-            }
-            catch (Exception ex)
-            {
-                throw;
-            }
-        }
-
-        public async Task<List<DoctorOffDays>> GetOffDays(Guid id)
-        {
-            try
-            {
-                return await _doctorRepository.GetOffDays(id);
-            }
-            catch (Exception ex)
-            {
-                throw;
-            }
+            _repository = repository;
         }
 
         public async Task<User> Get(string login)
         {
             try
             {
-                return await _doctorRepository.Get(login);
+                return await _repository.Get(login);
             }
             catch (Exception ex)
             {
@@ -66,7 +29,7 @@ namespace HealthMed.QueryAPI.Services
         {
             try
             {
-                return await _doctorRepository.Get(id);
+                return await _repository.Get(id);
             }
             catch (Exception ex)
             {

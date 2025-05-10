@@ -1,6 +1,6 @@
 ﻿namespace HealthMed.QueryAPI.Controllers.Dtos.Doctor.Input
 {
-    public class DoctorQueryParams : QueryParams
+    public class ListDoctorQueryParams : QueryParams
     {
         public Guid? DoctorId { get; set; }
     }

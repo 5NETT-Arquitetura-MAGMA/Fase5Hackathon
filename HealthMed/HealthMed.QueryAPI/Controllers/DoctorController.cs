@@ -16,11 +16,159 @@ namespace HealthMed.QueryAPI.Controllers
     [Route("doctor")]
     public class DoctorController : ControllerBase
     {
-        private readonly IUserService _service;
+        private readonly IUserService _userService;
+        private readonly IDoctorService _doctorService;
 
-        public DoctorController(IUserService service)
+        public DoctorController(IUserService userService, IDoctorService doctorService)
         {
-            _service = service;
+            _userService = userService;
+            _doctorService = doctorService;
+        }
+
+        [HttpGet]
+        [Route("consultations")]
+        public async Task<ActionResult<PaginationOutput<ConsultationDto>>> GetConsultations([FromQuery] GetDoctorConsultationsParams param)
+        {
+            try
+            {
+                if (!ModelState.IsValid)
+                {
+                    return BadRequest(ModelState);
+                }
+                User doctor = null;
+                var tokenHandler = new JwtSecurityTokenHandler();
+                var token = HttpContext.Request.Headers["Authorization"].FirstOrDefault()?.Split(" ").Last();
+                if (string.IsNullOrEmpty(token))
+                {
+                    return StatusCode(401);
+                }
+                var tokenS = tokenHandler.ReadToken(token) as JwtSecurityToken;
+                if (tokenS != null)
+                {
+                    var userName = tokenS.Claims.First(claim => claim.Type == "unique_name").Value;
+                    if (!string.IsNullOrEmpty(userName))
+                    {
+                        doctor = await _userService.Get(userName);
+                    }
+                }
+                if (doctor == null)
+                {
+                    return StatusCode(401);
+                }
+                if (doctor.Type != UserType.Doctor)
+                {
+                    return StatusCode(401);
+                }
+                if (doctor != null)
+                {
+                    var output = new PaginationOutput<ConsultationDto>();
+                    var (consultations, total) = await _doctorService.ListMedicalConsultation(doctor.Id, param.PageSize, param.PageNumber, param.SortBy, param.SortDirection);
+                    var consultationsDto = new List<ConsultationDto>();
+                    foreach (var consultation in consultations)
+                    {
+                        var patient = await _userService.Get(consultation.PatientId);
+                        consultationsDto.Add(new ConsultationDto()
+                        {
+                            PatientId = patient.Id,
+                            Id = consultation.Id,
+                            Justification = consultation.Justification,
+                            PatientName = patient.Name,
+                            ScheduledDate = consultation.ScheduledDate,
+                            ScheduleTime = consultation.ScheduleTime,
+                            Status = consultation.Status,
+                            CreationTime = consultation.CreationTime,
+                            UpdateTime = consultation.UpdateTime
+                        });
+                    }
+                    output.PageSize = param.PageSize;
+                    output.CurrentPage = param.PageNumber;
+                    output.TotalPages = param.GetTotalPages(total);
+                    output.TotalCount = total;
+                    output.Value = consultationsDto;
+                    return Ok(output);
+                }
+                else
+                {
+                    return NotFound("Médico não encontrado");
+                }
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
+        }
+
+        [HttpGet]
+        [Route("pendingConsultations")]
+        public async Task<ActionResult<PaginationOutput<ConsultationDto>>> GetPendingConsultations([FromQuery] GetPendingConsultationsParams param)
+        {
+            try
+            {
+                if (!ModelState.IsValid)
+                {
+                    return BadRequest(ModelState);
+                }
+                User doctor = null;
+                var tokenHandler = new JwtSecurityTokenHandler();
+                var token = HttpContext.Request.Headers["Authorization"].FirstOrDefault()?.Split(" ").Last();
+                if (string.IsNullOrEmpty(token))
+                {
+                    return StatusCode(401);
+                }
+                var tokenS = tokenHandler.ReadToken(token) as JwtSecurityToken;
+                if (tokenS != null)
+                {
+                    var userName = tokenS.Claims.First(claim => claim.Type == "unique_name").Value;
+                    if (!string.IsNullOrEmpty(userName))
+                    {
+                        doctor = await _userService.Get(userName);
+                    }
+                }
+                if (doctor == null)
+                {
+                    return StatusCode(401);
+                }
+                if (doctor.Type != UserType.Doctor)
+                {
+                    return StatusCode(401);
+                }
+                if (doctor != null)
+                {
+                    var output = new PaginationOutput<ConsultationDto>();
+                    var (consultations, total) = await _doctorService.ListPendingMedicalConsultation(doctor.Id, param.PageSize, param.PageNumber, param.SortBy, param.SortDirection);
+                    var consultationsDto = new List<ConsultationDto>();
+                    foreach (var consultation in consultations)
+                    {
+                        var patient = await _userService.Get(consultation.PatientId);
+                        consultationsDto.Add(new ConsultationDto()
+                        {
+                            PatientId = patient.Id,
+                            Id = consultation.Id,
+                            Justification = consultation.Justification,
+                            PatientName = patient.Name,
+                            ScheduledDate = consultation.ScheduledDate,
+                            ScheduleTime = consultation.ScheduleTime,
+                            Status = consultation.Status,
+                            CreationTime = consultation.CreationTime,
+                            UpdateTime = consultation.UpdateTime
+                        });
+                    }
+                    output.PageSize = param.PageSize;
+                    output.CurrentPage = param.PageNumber;
+                    output.TotalPages = param.GetTotalPages(total);
+                    output.TotalCount = total;
+                    output.Value = consultationsDto;
+                    return Ok(output);
+                }
+                else
+                {
+                    return NotFound("Médico não encontrado");
+                }
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
         }
 
         [HttpGet]
@@ -33,28 +181,32 @@ namespace HealthMed.QueryAPI.Controllers
                 {
                     return BadRequest(ModelState);
                 }
-                User doctor = null;
+                User user = null;
                 var tokenHandler = new JwtSecurityTokenHandler();
                 var token = HttpContext.Request.Headers["Authorization"].FirstOrDefault()?.Split(" ").Last();
-                var tokenS = tokenHandler.ReadToken(token) as JwtSecurityToken;
-                if (tokenS != null)
-                {
-                    var userName = tokenS.Claims.First(claim => claim.Type == "userName").Value;
-                    if (!string.IsNullOrEmpty(userName))
-                    {
-                        doctor = await _service.Get(userName);
-                    }
-                }
-                if (doctor == null)
+                if (string.IsNullOrEmpty(token))
                 {
                     return StatusCode(401);
                 }
-                if (doctor.Type != UserType.Patient)
+                var tokenS = tokenHandler.ReadToken(token) as JwtSecurityToken;
+                if (tokenS != null)
+                {
+                    var userName = tokenS.Claims.First(claim => claim.Type == "unique_name").Value;
+                    if (!string.IsNullOrEmpty(userName))
+                    {
+                        user = await _userService.Get(userName);
+                    }
+                }
+                if (user == null)
+                {
+                    return StatusCode(401);
+                }
+                if (user.Type != UserType.Patient)
                 {
                     return StatusCode(401);
                 }
 
-                if (doctor != null)
+                if (user != null)
                 {
                     var output = new PaginationOutput<ScheduleInfoDto>();
                     DateTime currentDate = DateTime.Now;
@@ -67,7 +219,7 @@ namespace HealthMed.QueryAPI.Controllers
                     DateTime lastDayOfMonth = currentDate.AddMonths(1).AddDays(-1);
 
                     var days = new List<DateTime>();
-                    var doctorOffDays = await _service.GetOffDays(doctorId);
+                    var doctorOffDays = await _doctorService.GetOffDays(doctorId);
 
                     for (DateTime day = currentDate; day <= lastDayOfMonth; day = day.AddDays(1))
                     {
@@ -76,7 +228,7 @@ namespace HealthMed.QueryAPI.Controllers
                             days.Add(day.Date);
                         }
                     }
-                    var doctorWorkDays = await _service.GetWorkDays(doctorId);
+                    var doctorWorkDays = await _doctorService.GetWorkDays(doctorId);
                     var infos = new List<ScheduleInfoDto>();
                     TimeSpan nowTimeOnly = DateTime.Now.TimeOfDay;
                     foreach (var day in days)
@@ -117,8 +269,8 @@ namespace HealthMed.QueryAPI.Controllers
                                         currentTime = currentTime.Add(oneHour);
                                     }
                                     info.ScheduleTimes = hours;
-                                    info.DoctorName = doctor.Name;
-                                    info.DoctorId = doctor.Id;
+                                    info.DoctorName = user.Name;
+                                    info.DoctorId = user.Id;
                                     infos.Add(info);
                                 }
                             }
@@ -142,7 +294,7 @@ namespace HealthMed.QueryAPI.Controllers
 
         [HttpGet]
         [Route("")]
-        public async Task<ActionResult<PaginationOutput<DoctorDto>>> List([FromQuery] DoctorQueryParams param)
+        public async Task<ActionResult<PaginationOutput<DoctorDto>>> List([FromQuery] ListDoctorQueryParams param)
         {
             try
             {
@@ -154,13 +306,17 @@ namespace HealthMed.QueryAPI.Controllers
                 User doctor = null;
                 var tokenHandler = new JwtSecurityTokenHandler();
                 var token = HttpContext.Request.Headers["Authorization"].FirstOrDefault()?.Split(" ").Last();
+                if (string.IsNullOrEmpty(token))
+                {
+                    return StatusCode(401);
+                }
                 var tokenS = tokenHandler.ReadToken(token) as JwtSecurityToken;
                 if (tokenS != null)
                 {
-                    var userName = tokenS.Claims.First(claim => claim.Type == "userName").Value;
+                    var userName = tokenS.Claims.First(claim => claim.Type == "unique_name").Value;
                     if (!string.IsNullOrEmpty(userName))
                     {
-                        doctor = await _service.Get(userName);
+                        doctor = await _userService.Get(userName);
                     }
                 }
                 if (doctor == null)
@@ -174,7 +330,7 @@ namespace HealthMed.QueryAPI.Controllers
 
                 var output = new PaginationOutput<DoctorDto>();
                 var doctors = new List<DoctorDto>();
-                var (users, total) = await _service.GetAllDoctors(param.DoctorId, param.PageSize, param.PageNumber, param.SortBy, param.SortDirection);
+                var (users, total) = await _doctorService.GetAllDoctors(param.DoctorId, param.PageSize, param.PageNumber, param.SortBy, param.SortDirection);
                 foreach (var user in users)
                 {
                     doctors.Add(new DoctorDto()

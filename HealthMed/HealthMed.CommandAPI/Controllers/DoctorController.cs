@@ -21,7 +21,7 @@ namespace HealthMed.CommandAPI.Controllers
         }
 
         [HttpPost]
-        [Route("UpdateConsultation")]
+        [Route("updateConsultation")]
         public async Task<ActionResult> UpdateConsultation(UpdateConsultationInput input)
         {
             try
@@ -29,10 +29,14 @@ namespace HealthMed.CommandAPI.Controllers
                 User user = null;
                 var tokenHandler = new JwtSecurityTokenHandler();
                 var token = HttpContext.Request.Headers["Authorization"].FirstOrDefault()?.Split(" ").Last();
+                if (string.IsNullOrEmpty(token))
+                {
+                    return StatusCode(401);
+                }
                 var tokenS = tokenHandler.ReadToken(token) as JwtSecurityToken;
                 if (tokenS != null)
                 {
-                    var userName = tokenS.Claims.First(claim => claim.Type == "userName").Value;
+                    var userName = tokenS.Claims.First(claim => claim.Type == "unique_name").Value;
                     if (!string.IsNullOrEmpty(userName))
                     {
                         user = await _userService.Get(userName);
@@ -50,6 +54,10 @@ namespace HealthMed.CommandAPI.Controllers
                 if (consultation == null)
                 {
                     return NotFound(new { message = "Consulta não encontrada" });
+                }
+                if (consultation.DoctorId != user.Id)
+                {
+                    return StatusCode(401);
                 }
                 await _doctorService.UpdateConsultation(input.ConsultationId, input.Accepted, input.Justification);
                 return Ok();
@@ -73,10 +81,14 @@ namespace HealthMed.CommandAPI.Controllers
                 User user = null;
                 var tokenHandler = new JwtSecurityTokenHandler();
                 var token = HttpContext.Request.Headers["Authorization"].FirstOrDefault()?.Split(" ").Last();
+                if (string.IsNullOrEmpty(token))
+                {
+                    return StatusCode(401);
+                }
                 var tokenS = tokenHandler.ReadToken(token) as JwtSecurityToken;
                 if (tokenS != null)
                 {
-                    var userName = tokenS.Claims.First(claim => claim.Type == "userName").Value;
+                    var userName = tokenS.Claims.First(claim => claim.Type == "unique_name").Value;
                     if (!string.IsNullOrEmpty(userName))
                     {
                         user = await _userService.Get(userName);
@@ -120,10 +132,14 @@ namespace HealthMed.CommandAPI.Controllers
                 User user = null;
                 var tokenHandler = new JwtSecurityTokenHandler();
                 var token = HttpContext.Request.Headers["Authorization"].FirstOrDefault()?.Split(" ").Last();
+                if (string.IsNullOrEmpty(token))
+                {
+                    return StatusCode(401);
+                }
                 var tokenS = tokenHandler.ReadToken(token) as JwtSecurityToken;
                 if (tokenS != null)
                 {
-                    var userName = tokenS.Claims.First(claim => claim.Type == "userName").Value;
+                    var userName = tokenS.Claims.First(claim => claim.Type == "unique_name").Value;
                     if (!string.IsNullOrEmpty(userName))
                     {
                         user = await _userService.Get(userName);

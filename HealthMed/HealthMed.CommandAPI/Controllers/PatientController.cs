@@ -4,6 +4,7 @@ using HealthMed.CommandAPI.Interfaces.Services;
 using HealthMed.Migrator.Data.Entities;
 using HealthMed.Migrator.Data.Entities.Enum;
 using Microsoft.AspNetCore.Mvc;
+using System.Globalization;
 using System.IdentityModel.Tokens.Jwt;
 
 namespace HealthMed.CommandAPI.Controllers
@@ -22,18 +23,22 @@ namespace HealthMed.CommandAPI.Controllers
         }
 
         [HttpPost]
-        [Route("CancelConsultation")]
-        public async Task<ActionResult> CancelConsultation(UpdateConsultationInput input)
+        [Route("cancelConsultation")]
+        public async Task<ActionResult> CancelConsultation(CancelConsultationInput input)
         {
             try
             {
                 User user = null;
                 var tokenHandler = new JwtSecurityTokenHandler();
                 var token = HttpContext.Request.Headers["Authorization"].FirstOrDefault()?.Split(" ").Last();
+                if (string.IsNullOrEmpty(token))
+                {
+                    return StatusCode(401);
+                }
                 var tokenS = tokenHandler.ReadToken(token) as JwtSecurityToken;
                 if (tokenS != null)
                 {
-                    var userName = tokenS.Claims.First(claim => claim.Type == "userName").Value;
+                    var userName = tokenS.Claims.First(claim => claim.Type == "unique_name").Value;
                     if (!string.IsNullOrEmpty(userName))
                     {
                         user = await _userService.Get(userName);
@@ -51,6 +56,10 @@ namespace HealthMed.CommandAPI.Controllers
                 if (consultation == null)
                 {
                     return NotFound(new { message = "Consulta não encontrada" });
+                }
+                if (consultation.PatientId != user.Id)
+                {
+                    return StatusCode(401);
                 }
                 await _doctorService.UpdateConsultation(input.ConsultationId, ConsultationStatus.Canceled, input.Justification);
                 return Ok();
@@ -70,10 +79,14 @@ namespace HealthMed.CommandAPI.Controllers
                 User user = null;
                 var tokenHandler = new JwtSecurityTokenHandler();
                 var token = HttpContext.Request.Headers["Authorization"].FirstOrDefault()?.Split(" ").Last();
+                if (string.IsNullOrEmpty(token))
+                {
+                    return StatusCode(401);
+                }
                 var tokenS = tokenHandler.ReadToken(token) as JwtSecurityToken;
                 if (tokenS != null)
                 {
-                    var userName = tokenS.Claims.First(claim => claim.Type == "userName").Value;
+                    var userName = tokenS.Claims.First(claim => claim.Type == "unique_name").Value;
                     if (!string.IsNullOrEmpty(userName))
                     {
                         user = await _userService.Get(userName);
@@ -87,35 +100,64 @@ namespace HealthMed.CommandAPI.Controllers
                 {
                     return StatusCode(401);
                 }
+                var scheduleDateConv = ConvertStringToDateTime(input.ScheduleDate);
+                if (!scheduleDateConv.HasValue)
+                {
+                    return BadRequest("\"ScheduleDate\" não pode ser nula ou vazia");
+                }
+                var scheduleDate = scheduleDateConv.Value;
 
                 var doctorWorkDays = await _doctorService.GetWorkDays(input.DoctorId);
-                if (doctorWorkDays != null && doctorWorkDays.Any(x => x.DayOfWeek == input.ScheduleDate.DayOfWeek))
+                if (doctorWorkDays != null && !doctorWorkDays.Any(x => x.DayOfWeek == scheduleDate.DayOfWeek))
                 {
                     return BadRequest(new { message = "Médico não disponivel na data solicitada" });
                 }
 
                 var doctorOffDays = await _doctorService.GetOffDays(input.DoctorId);
-                if (doctorOffDays != null && doctorOffDays.Any(x => x.OffDate.Date == input.ScheduleDate.Date))
+                if (doctorOffDays != null && doctorOffDays.Any(x => x.OffDate.Date == scheduleDate.Date))
                 {
                     return BadRequest(new { message = "Médico não disponivel na data solicitada" });
                 }
 
                 var consultations = await _doctorService.GetConsultations(input.DoctorId);
-                if (consultations != null && consultations.Any(x => (x.Status == ConsultationStatus.PendingConfirmation || x.Status == ConsultationStatus.Confirmed) && x.ScheduledDate.Date == input.ScheduleDate.Date && x.ScheduleTime == input.ScheduleTime))
+                if (consultations != null)
                 {
-                    if (consultations.Any(x => x.PatientId == user.Id && (x.Status == ConsultationStatus.PendingConfirmation || x.Status == ConsultationStatus.Confirmed) && x.ScheduledDate.Date == input.ScheduleDate.Date && x.ScheduleTime == input.ScheduleTime))
-                        return BadRequest(new { message = "Consulta já agendada ou aguardando confirmação" });
-                    else
+                    if (consultations.Any(x => (x.Status == ConsultationStatus.PendingConfirmation || x.Status == ConsultationStatus.Confirmed) && x.ScheduledDate.Date == scheduleDate.Date && x.ScheduleTime == input.ScheduleTime))
+                    {
+                        if (consultations.Any(x => x.PatientId == user.Id && (x.Status == ConsultationStatus.PendingConfirmation || x.Status == ConsultationStatus.Confirmed) && x.ScheduledDate.Date == scheduleDate.Date && x.ScheduleTime == input.ScheduleTime))
+                            return BadRequest(new { message = "Consulta já agendada ou aguardando confirmação" });
+                        else
+                            return BadRequest(new { message = "Médico não disponivel na data solicitada" });
+                    }
+                    else if (consultations.Any(x => x.PatientId == user.Id && x.Status == ConsultationStatus.Rejected && x.ScheduledDate.Date == scheduleDate.Date && x.ScheduleTime == input.ScheduleTime))
                         return BadRequest(new { message = "Médico não disponivel na data solicitada" });
                 }
-                await _doctorService.CreateConsultation(user.Id, input.DoctorId, input.ScheduleDate, input.ScheduleTime);
+                var consultation = await _doctorService.CreateConsultation(user.Id, input.DoctorId, scheduleDate, input.ScheduleTime);
 
-                return Created();
+                return StatusCode(201, new { consultation.Id });
             }
             catch (Exception ex)
             {
                 throw;
             }
         }
+
+        #region Private Methods
+
+        private static DateTime? ConvertStringToDateTime(string dateStr)
+        {
+            if (!string.IsNullOrEmpty(dateStr))
+            {
+                DateTime result;
+                if (DateTime.TryParseExact(dateStr, new string[] { "dd/MM/yy", "dd/MM/yyyy" }, CultureInfo.InvariantCulture, DateTimeStyles.None, out result))
+                {
+                    return result;
+                }
+            }
+
+            return null;
+        }
+
+        #endregion Private Methods
     }
 }
