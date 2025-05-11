@@ -24,4 +24,8 @@
     <ProjectReference Include="..\HealthMed.Migrator\HealthMed.Migrator.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Content Remove="..\HealthMed.Migrator\appsettings.json" />
+  </ItemGroup>
+  
 </Project>

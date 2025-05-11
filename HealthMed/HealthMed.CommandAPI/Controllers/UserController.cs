@@ -1,5 +1,6 @@
 ﻿using HealthMed.CommandAPI.Controllers.Dtos.User.Input;
 using HealthMed.CommandAPI.Interfaces.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HealthMed.CommandAPI.Controllers
@@ -17,6 +18,7 @@ namespace HealthMed.CommandAPI.Controllers
             _logger = logger;
         }
 
+        [AllowAnonymous]
         [HttpPost]
         [Route("createPatientUser")]
         public async Task<ActionResult> CreatePatientUser(CreatePatientUserInput input)
@@ -46,6 +48,7 @@ namespace HealthMed.CommandAPI.Controllers
             }
         }
 
+        [AllowAnonymous]
         [HttpPost]
         [Route("createMedicUser")]
         public async Task<ActionResult> CreateMedicUser(CreateMedicUserInput input)

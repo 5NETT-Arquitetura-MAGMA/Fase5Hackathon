@@ -8,6 +8,7 @@ FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
 ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
 COPY ["HealthMed.CommandAPI/HealthMed.CommandAPI.csproj", "HealthMed.CommandAPI/"]
+COPY ["HealthMed.Migrator/HealthMed.Migrator.csproj", "HealthMed.Migrator/"]
 RUN dotnet restore "./HealthMed.CommandAPI/HealthMed.CommandAPI.csproj"
 COPY . .
 WORKDIR "/src/HealthMed.CommandAPI"

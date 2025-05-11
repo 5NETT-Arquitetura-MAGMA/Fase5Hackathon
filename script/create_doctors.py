@@ -17,7 +17,7 @@ def gerar_senha_segura(tamanho=12):
     return "".join(senha_lista)
 
 def enviar_para_api(nome_arquivo_csv, url_api):
-    with open(nome_arquivo_csv, 'r', newline='') as arquivo_csv:
+    with open(nome_arquivo_csv, 'r', newline='', encoding='utf-8') as arquivo_csv:
         leitor_csv = csv.DictReader(arquivo_csv, delimiter=';')
         headers = {'Content-Type': 'application/json'}
         for linha in leitor_csv:
@@ -41,7 +41,7 @@ def enviar_para_api(nome_arquivo_csv, url_api):
             try:
                 response = requests.post(url_api, headers=headers, data=payload)
                 response.raise_for_status() 
-                print(f"Médico '{nome_completo}' enviado com sucesso. Resposta: {response.text}")
+                print(f"Médico '{nome_completo}' enviado com sucesso. Resposta: {response.text}, senha: {senha}")
             except requests.exceptions.RequestException as e:
                 print(f"Erro ao enviar médico '{nome_completo}': {e}")
             except Exception as e:

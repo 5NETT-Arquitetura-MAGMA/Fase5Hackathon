@@ -12,6 +12,8 @@ FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
 ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
 COPY ["HealthMed.QueryAPI/HealthMed.QueryAPI.csproj", "HealthMed.QueryAPI/"]
+COPY ["HealthMed.Migrator/HealthMed.Migrator.csproj", "HealthMed.Migrator/"]
+
 RUN dotnet restore "./HealthMed.QueryAPI/HealthMed.QueryAPI.csproj"
 COPY . .
 WORKDIR "/src/HealthMed.QueryAPI"

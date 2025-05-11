@@ -8,8 +8,11 @@ services:
     ports:
       - 1433:1433
     volumes:
-      - db_data:/var/opt/mssql/data
-
+      - "./db/data/:/var/opt/mssql/data/"
+      - "./db/log/:/var/opt/mssql/log/"
+      - "./db/secrets/:/var/opt/mssql/secrets/"
+    networks:
+      - mynw
   init-db:
     image: mcr.microsoft.com/mssql/server:2019-latest
     depends_on:
@@ -21,6 +24,8 @@ services:
       - ./scripts:/scripts
     user: root
     command: /bin/bash -c "apt-get update && apt-get install -y mssql-tools unixodbc-dev && /opt/mssql-tools/bin/sqlcmd -S db -U sa -P 0yKPj5Yp3Q85 -i /scripts/cria_banco.sql"
+    networks:
+      - mynw
 
   prometheus:
     image: prom/prometheus:latest
@@ -29,6 +34,13 @@ services:
     volumes:
       - prometheus_data:/prometheus
       - ./prometheus.yml:/etc/prometheus/prometheus.yml 
+    depends_on:
+      - command-api
+      - query-api
+    command:
+      - "--config.file=/etc/prometheus/prometheus.yml"
+    networks:
+      - mynw
 
   grafana:
     image: grafana/grafana:latest
@@ -41,10 +53,38 @@ services:
       - GF_SECURITY_ADMIN_PASSWORD=mi3xCG3vZ36j
     volumes:
       - grafana_data:/var/lib/grafana
+    networks:
+      - mynw
+
+  command-api:
+    build:
+      context: ../HealthMed
+      dockerfile: HealthMed.CommandAPI/Dockerfile
+    ports:
+      - "8081:8080" 
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production 
+    depends_on:
+      - db
+    networks:
+      - mynw
+
+  query-api:
+    build:
+      context: ../HealthMed
+      dockerfile: HealthMed.QueryAPI/Dockerfile
+    ports:
+      - "8082:8080" 
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+    depends_on:
+      - db
+    networks:
+      - mynw
 
 
 volumes:
-  db_data:
+  # db_data:
   prometheus_data:
   grafana_data:
 networks:
