@@ -10,6 +10,9 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HealthMed.CommandAPI", "HealthMed.CommandAPI\HealthMed.CommandAPI.csproj", "{4C21FEB9-20A7-4F65-9BD5-C6C09F45957C}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HealthMed.Gateway", "HealthMed.Gateway\HealthMed.Gateway.csproj", "{44D8622C-2492-4506-9441-4724F29DCA4C}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CommandApi.Test", "CommandApi.Test\CommandApi.Test.csproj", "{2E77A6C6-6D05-4739-997F-366D2E2D4674}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QueryAPI.Test", "QueryAPI.Test\QueryAPI.Test.csproj", "{667D1120-981E-4D75-A6E9-AD077D4FC5C9}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
