@@ -91,7 +91,7 @@ namespace HealthMed.QueryAPI.Controllers
                 }
                 else
                 {
-                    return NotFound("Médico não encontrado");
+                    return NotFound(new { message = "Médico não encontrado" });
                 }
             }
             catch (Exception ex)
@@ -165,7 +165,7 @@ namespace HealthMed.QueryAPI.Controllers
                 }
                 else
                 {
-                    return NotFound("Médico não encontrado");
+                    return NotFound(new { message = "Médico não encontrado" });
                 }
             }
             catch (Exception ex)
@@ -287,7 +287,7 @@ namespace HealthMed.QueryAPI.Controllers
                 }
                 else
                 {
-                    return NotFound("Médico não encontrado");
+                    return NotFound(new { message = "Médico não encontrado" });
                 }
             }
             catch (Exception ex)

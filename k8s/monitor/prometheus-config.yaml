@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: prometheus-config
+data:
+  prometheus.yml: |
+    global:
+      scrape_interval: 15s # Intervalo de coleta de métricas
+
+    scrape_configs:
+    - job_name: 'query-api'
+      static_configs:
+      - targets: ['query-api:8080']
+
+    - job_name: 'command-api'
+      static_configs:
+      - targets: ['command-api:8080']

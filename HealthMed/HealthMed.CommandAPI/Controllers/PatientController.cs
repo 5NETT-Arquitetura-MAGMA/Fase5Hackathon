@@ -1,5 +1,4 @@
-﻿using HealthMed.CommandAPI.Controllers.Dtos.Doctor.Input;
-using HealthMed.CommandAPI.Controllers.Dtos.Patient.Input;
+﻿using HealthMed.CommandAPI.Controllers.Dtos.Patient.Input;
 using HealthMed.CommandAPI.Interfaces.Services;
 using HealthMed.Migrator.Data.Entities;
 using HealthMed.Migrator.Data.Entities.Enum;
@@ -106,7 +105,7 @@ namespace HealthMed.CommandAPI.Controllers
                 var scheduleDateConv = ConvertStringToDateTime(input.ScheduleDate);
                 if (!scheduleDateConv.HasValue)
                 {
-                    return BadRequest("\"ScheduleDate\" não pode ser nula ou vazia");
+                    return BadRequest(new { message = "\"ScheduleDate\" não pode ser nula ou vazia" });
                 }
                 var scheduleDate = scheduleDateConv.Value;
 
