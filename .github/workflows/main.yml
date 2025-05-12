@@ -70,7 +70,7 @@ jobs:
       with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
     - name: Login no ACR
-      run: az acr login --name techchallengeregistry
+      run: az acr login --name healthmed-aks
     - name: Construir e enviar as imagens para o ACR
       run: |
           cd HealthMed
