@@ -1,0 +1,108 @@
+name: .NET
+
+on:
+  push:
+    branches: [ "develop","main" ]
+  pull_request:
+    branches: [ "develop","main" ]
+
+jobs:
+  build-gateway:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: 9.0.x
+    - name: Restore dependencies
+      run: cd HealthMed/HealthMed.Gateway && dotnet restore
+    - name: Build
+      run: cd HealthMed/HealthMed.Gateway && dotnet build --no-restore
+    - name: Test
+      run: cd HealthMed/HealthMed.Gateway && dotnet test --no-build --verbosity normal
+      
+  build-command:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: 9.0.x
+    - name: Restore dependencies
+      run: cd HealthMed/HealthMed.CommandAPI && dotnet restore
+    - name: Build
+      run: cd HealthMed/HealthMed.CommandAPI && dotnet build --no-restore
+    - name: Test
+      run: cd HealthMed/HealthMed.CommandAPI && dotnet test --no-build --verbosity normal
+
+  build-query:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: 8.0.x
+    - name: Restore dependencies
+      run: cd HealthMed/HealthMed.QueryAPI && dotnet restore
+    - name: Build
+      run: cd HealthMed/HealthMed.QueryAPI && dotnet build --no-restore
+    - name: Test
+      run: cd HealthMed/HealthMed.QueryAPI && dotnet test --no-build --verbosity normal
+      
+ 
+  build-and-push:
+    needs: [build-gateway,build-command,build-query]
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout do código
+      uses: actions/checkout@v3
+    - name: Login no Azure
+      uses: azure/login@v1
+      with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+    - name: Login no ACR
+      run: az acr login --name techchallengeregistry
+    - name: Construir e enviar as imagens para o ACR
+      run: |
+          cd HealthMed
+          docker build . -t healthmed.commandapi -f HealthMed.CommandAPI/Dockerfile
+          docker tag healthmed.commandapi healthmed.azurecr.io/healthmed/healthmed.commandapi:latest
+          docker push healthmed.azurecr.io/healthmed/healthmed.commandapi
+
+          docker build . -t healthmed.queryapi -f HealthMed.QueryAPI/Dockerfile
+          docker tag healthmed.queryapi healthmed.azurecr.io/healthmed/healthmed.queryapi:latest
+          docker push healthmed.azurecr.io/healthmed/healthmed.queryapi
+
+          docker build . -t healthmed.gateway -f HealthMed.Gateway/Dockerfile
+          docker tag healthmed.gateway healthmed.azurecr.io/healthmed/healthmed.gateway:latest
+          docker push healthmed.azurecr.io/healthmed/healthmed.gateway
+
+  deploy-to-aks:
+    needs: build-and-push
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout do código
+      uses: actions/checkout@v3
+    - name: Login no Azure
+      uses: azure/login@v1
+      with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+    - name: Login no ACR
+      run: az acr login --name healthmed
+    - name: Configurar kubectl
+      run: az aks get-credentials --resource-group FIAP --name healthmed-aks
+    - name: Criar namespace monitoramento
+      run: kubectl create namespace healthmed --dry-run=client -o yaml | kubectl apply -f -
+    - name: Aplicar os manifests do Kubernetes
+      run: kubectl apply -f k8s/app/ -n healthmed
+    - name: Implantar Grafana e Prometheus
+      run: kubectl apply -f k8s/monitor/ -n healthmed
