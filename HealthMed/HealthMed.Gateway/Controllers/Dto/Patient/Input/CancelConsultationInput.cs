@@ -1,4 +1,4 @@
-﻿namespace HealthMed.CommandAPI.Controllers.Dtos.Doctor.Input
+﻿namespace HealthMed.Gateway.Controllers.Dto.Patient.Input
 {
     public class CancelConsultationInput
     {

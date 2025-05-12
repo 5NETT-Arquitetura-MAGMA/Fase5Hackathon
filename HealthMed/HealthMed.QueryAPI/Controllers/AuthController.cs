@@ -34,18 +34,18 @@ namespace HealthMed.QueryAPI.Controllers
                 var user = await _service.Get(model.Username);
                 if (user == null || (user != null && user.Id == Guid.Empty))
                 {
+                    _logger.LogError("Usuário não encontrado");
                     return NotFound(new { message = "Usuário não encontrado" });
                 }
 
                 if (!VerifyPassword(model.Password, user.Password, user.SecurityHash))
                 {
+                    _logger.LogError("Credenciais inválidas.");
                     return Unauthorized(new { message = "Credenciais inválidas." });
                 }
 
-                // 2. Se a autenticação for bem-sucedida, gere o token JWT
                 var token = GenerateJwtToken(model.Username);
 
-                // 3. Retorne o token
                 return Ok(new { token });
             }
             catch (Exception ex)
@@ -59,10 +59,8 @@ namespace HealthMed.QueryAPI.Controllers
 
         private bool VerifyPassword(string enteredPassword, string storedHashedPassword, string securityHash)
         {
-            // Recalcular o hash da senha fornecida usando o securityHash (salt) armazenado
             string hashedPasswordToCheck = PasswordUtils.HashPassword(enteredPassword, securityHash);
 
-            // Comparar o hash recalculado com o hash armazenado
             return hashedPasswordToCheck == storedHashedPassword;
         }
 

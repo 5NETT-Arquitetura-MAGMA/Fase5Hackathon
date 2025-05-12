@@ -32,7 +32,7 @@ namespace HealthMed.CommandAPI.Controllers
                 var exists = await _userService.GetUserByCPF(input.Login);
                 if (exists != null)
                 {
-                    return BadRequest("Paciente ja existe em nossa base de dados");
+                    return BadRequest(new { message = "Paciente ja existe em nossa base de dados" });
                 }
                 else
                 {
@@ -62,7 +62,7 @@ namespace HealthMed.CommandAPI.Controllers
                 var exists = await _userService.GetDoctorByCRM(input.Login);
                 if (exists != null)
                 {
-                    return BadRequest("Medico ja existe em nossa base de dados");
+                    return BadRequest(new { message = "Medico ja existe em nossa base de dados" });
                 }
                 else
                 {

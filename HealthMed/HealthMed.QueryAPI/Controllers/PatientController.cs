@@ -91,7 +91,7 @@ namespace HealthMed.QueryAPI.Controllers
                 }
                 else
                 {
-                    return NotFound("Paciente não encontrado");
+                    return NotFound(new { message = "Paciente não encontrado" });
                 }
             }
             catch (Exception ex)
