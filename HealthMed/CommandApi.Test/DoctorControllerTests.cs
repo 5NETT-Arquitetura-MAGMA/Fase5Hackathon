@@ -40,6 +40,8 @@ namespace HealthMed.CommandAPI.Tests.Integration.Controllers
                 HttpContext = new DefaultHttpContext()
 
             };
+
+            _controller.ControllerContext.HttpContext.Request.Headers["Authorization"] = "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1bmlxdWVfbmFtZSI6IkNSTS1TUCAxMjM0NTciLCJuYmYiOjE3NDcwMTMzMzMsImV4cCI6MTc0NzAxNjkzMywiaWF0IjoxNzQ3MDEzMzMzLCJpc3MiOiJoZWFsdGhtZWQua3JlYXRpLmNvbS5iciIsImF1ZCI6ImhlYWx0aG1lZC5rcmVhdGkuY29tLmJyIn0.JUTjsZ4vbaCjjZWqdiduSItHMUfIBSEItBmVf6k6mXg";
         }
 
         [Fact]
@@ -65,7 +67,6 @@ namespace HealthMed.CommandAPI.Tests.Integration.Controllers
                 DoctorId = user.Id
             };
 
-            _controller.ControllerContext.HttpContext.Request.Headers["Authorization"] = "Bearer valid_token";
 
             _userServiceMock
                 .Setup(service => service.Get(It.IsAny<string>()))
@@ -104,7 +105,7 @@ namespace HealthMed.CommandAPI.Tests.Integration.Controllers
                 Type = UserType.Doctor
             };
 
-            _controller.ControllerContext.HttpContext.Request.Headers["Authorization"] = "Bearer valid_token";
+            
 
             _userServiceMock
                 .Setup(service => service.Get(It.IsAny<string>()))
@@ -144,7 +145,6 @@ namespace HealthMed.CommandAPI.Tests.Integration.Controllers
                 Type = UserType.Doctor
             };
 
-            _controller.ControllerContext.HttpContext.Request.Headers["Authorization"] = "Bearer valid_token";
 
             _userServiceMock
                 .Setup(service => service.Get(It.IsAny<string>()))

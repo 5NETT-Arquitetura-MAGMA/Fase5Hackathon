@@ -42,7 +42,7 @@ namespace HealthMed.CommandAPI.Tests.Integration.Controllers
             };
 
             // Adiciona um token JWT válido ao cabeçalho de autorização
-            _controller.ControllerContext.HttpContext.Request.Headers["Authorization"] = "Bearer valid_token";
+            _controller.ControllerContext.HttpContext.Request.Headers["Authorization"] = "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1bmlxdWVfbmFtZSI6IjQ5Ny4xMzMuODAwLTQ1IiwibmJmIjoxNzQ3MDEzNjIxLCJleHAiOjE3NDcwMTcyMjEsImlhdCI6MTc0NzAxMzYyMSwiaXNzIjoiaGVhbHRobWVkLmtyZWF0aS5jb20uYnIiLCJhdWQiOiJoZWFsdGhtZWQua3JlYXRpLmNvbS5iciJ9.fqJ--l_3Z-osXAtL6vnKePePx1x53x1iBFFMeGrtZD0";
         }
 
         [Fact]
@@ -109,9 +109,9 @@ namespace HealthMed.CommandAPI.Tests.Integration.Controllers
             };
 
             var doctorWorkDays = new List<DoctorSchedule>
-            {
-                new DoctorSchedule { DayOfWeek = DayOfWeek.Thursday }
-            };
+    {
+        new DoctorSchedule { DayOfWeek = DayOfWeek.Thursday }
+    };
 
             var doctorOffDays = new List<DoctorOffDays>();
 
@@ -155,8 +155,11 @@ namespace HealthMed.CommandAPI.Tests.Integration.Controllers
             var actionResult = Assert.IsType<Microsoft.AspNetCore.Mvc.ObjectResult>(result);
             Assert.Equal((int)HttpStatusCode.Created, actionResult.StatusCode);
 
-            var responseValue = JsonSerializer.Deserialize<dynamic>(JsonSerializer.Serialize(actionResult.Value));
-            Assert.Equal(createdConsultation.Id.ToString(), responseValue?.Id.ToString());
+            var responseValue = JsonSerializer.Deserialize<JsonElement>(JsonSerializer.Serialize(actionResult.Value));
+            var returnedId = responseValue.GetProperty("Id").GetGuid();
+
+            Assert.Equal(createdConsultation.Id, returnedId);
         }
+
     }
 }

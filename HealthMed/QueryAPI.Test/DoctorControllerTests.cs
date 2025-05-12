@@ -43,7 +43,7 @@ namespace QueryAPI.Test
             };
 
             // Adiciona um token JWT válido ao cabeçalho de autorização
-            _controller.ControllerContext.HttpContext.Request.Headers["Authorization"] = "Bearer valid_token";
+            _controller.ControllerContext.HttpContext.Request.Headers["Authorization"] = "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1bmlxdWVfbmFtZSI6IkNSTS1TUCAxMjM0NTciLCJuYmYiOjE3NDcwMTQ3MjIsImV4cCI6MTc0NzAxODMyMiwiaWF0IjoxNzQ3MDE0NzIyLCJpc3MiOiJoZWFsdGhtZWQua3JlYXRpLmNvbS5iciIsImF1ZCI6ImhlYWx0aG1lZC5rcmVhdGkuY29tLmJyIn0.Eee9_1mTW_hDwbstTLj81crxZydKKmZMq6o9rPkbki8";
         }
 
         [Fact]
@@ -99,7 +99,7 @@ namespace QueryAPI.Test
 
             // Assert
             Assert.NotNull(result);
-            var actionResult = Assert.IsType<Microsoft.AspNetCore.Mvc.OkObjectResult>(result);
+            var actionResult = Assert.IsType<Microsoft.AspNetCore.Mvc.OkObjectResult>(result.Result); // Corrigido para acessar o `Result`
             Assert.Equal((int)HttpStatusCode.OK, actionResult.StatusCode);
 
             var responseValue = JsonSerializer.Deserialize<PaginationOutput<ConsultationDto>>(JsonSerializer.Serialize(actionResult.Value));
@@ -107,6 +107,7 @@ namespace QueryAPI.Test
             Assert.Single(responseValue.Value);
             Assert.Equal(patient.Name, responseValue.Value[0].PatientName);
         }
+
 
         [Fact]
         public async Task GetPendingConsultations_ReturnsOk_WhenValidRequest()
@@ -161,7 +162,7 @@ namespace QueryAPI.Test
 
             // Assert
             Assert.NotNull(result);
-            var actionResult = Assert.IsType<Microsoft.AspNetCore.Mvc.OkObjectResult>(result);
+            var actionResult = Assert.IsType<Microsoft.AspNetCore.Mvc.OkObjectResult>(result.Result); // Corrigido para acessar o `Result`
             Assert.Equal((int)HttpStatusCode.OK, actionResult.StatusCode);
 
             var responseValue = JsonSerializer.Deserialize<PaginationOutput<ConsultationDto>>(JsonSerializer.Serialize(actionResult.Value));
@@ -169,6 +170,7 @@ namespace QueryAPI.Test
             Assert.Single(responseValue.Value);
             Assert.Equal(patient.Name, responseValue.Value[0].PatientName);
         }
+
 
         [Fact]
         public async Task List_ReturnsOk_WhenValidRequest()
@@ -207,7 +209,7 @@ namespace QueryAPI.Test
 
             // Assert
             Assert.NotNull(result);
-            var actionResult = Assert.IsType<Microsoft.AspNetCore.Mvc.OkObjectResult>(result);
+            var actionResult = Assert.IsType<Microsoft.AspNetCore.Mvc.OkObjectResult>(result.Result); // Corrigido para acessar o `Result`
             Assert.Equal((int)HttpStatusCode.OK, actionResult.StatusCode);
 
             var responseValue = JsonSerializer.Deserialize<PaginationOutput<DoctorDto>>(JsonSerializer.Serialize(actionResult.Value));
@@ -215,5 +217,6 @@ namespace QueryAPI.Test
             Assert.Single(responseValue.Value);
             Assert.Equal(doctors[0].Name, responseValue.Value[0].Name);
         }
+
     }
 }
