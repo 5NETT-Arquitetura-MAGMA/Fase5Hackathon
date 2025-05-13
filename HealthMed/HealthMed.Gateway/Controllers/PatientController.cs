@@ -35,6 +35,7 @@ namespace HealthMed.Gateway.Controllers
 
                 var client = new HttpClient();
                 var request = new HttpRequestMessage(HttpMethod.Post, url);
+                request.Headers.Add("Authorization", $"Bearer {token}");
                 var content = new StringContent(JsonConvert.SerializeObject(input), null, "application/json");
                 request.Content = content;
                 var response = await client.SendAsync(request);
@@ -72,6 +73,7 @@ namespace HealthMed.Gateway.Controllers
                 var client = new HttpClient();
                 var request = new HttpRequestMessage(HttpMethod.Post, url);
                 var content = new StringContent(JsonConvert.SerializeObject(input), null, "application/json");
+                request.Headers.Add("Authorization", $"Bearer {token}");
                 request.Content = content;
                 var response = await client.SendAsync(request);
                 var resp = await response.Content.ReadAsStringAsync();
