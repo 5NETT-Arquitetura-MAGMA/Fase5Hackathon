@@ -1,4 +1,6 @@
 ﻿using Flurl;
+using HealthMed.Gateway.Controllers.Dto;
+using HealthMed.Gateway.Controllers.Dto.Doctor;
 using HealthMed.Gateway.Controllers.Dto.Patient.Input;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
@@ -95,7 +97,7 @@ namespace HealthMed.Gateway.Controllers
 
         [HttpGet]
         [Route("consultations")]
-        public async Task<ActionResult> GetConsultations([FromQuery] GetConsultationsParams param)
+        public async Task<ActionResult<PaginationOutput<ConsultationDto>>> GetConsultations([FromQuery] GetConsultationsParams param)
         {
             try
             {
@@ -132,7 +134,7 @@ namespace HealthMed.Gateway.Controllers
                 var resp = await response.Content.ReadAsStringAsync();
                 if (!string.IsNullOrEmpty(resp))
                 {
-                    return StatusCode((int)response.StatusCode, JsonConvert.DeserializeObject<Dictionary<string, object>>(resp));
+                    return StatusCode((int)response.StatusCode, JsonConvert.DeserializeObject<PaginationOutput<ConsultationDto>>(resp));
                 }
                 else
                 {

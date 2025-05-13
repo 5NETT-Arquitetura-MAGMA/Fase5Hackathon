@@ -1,4 +1,6 @@
 ﻿using Flurl;
+using HealthMed.Gateway.Controllers.Dto;
+using HealthMed.Gateway.Controllers.Dto.Doctor;
 using HealthMed.Gateway.Controllers.Dto.Doctor.Input;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
@@ -140,7 +142,7 @@ namespace HealthMed.Gateway.Controllers
 
         [HttpGet]
         [Route("consultations")]
-        public async Task<ActionResult> GetConsultations([FromQuery] GetDoctorConsultationsParams param)
+        public async Task<ActionResult<PaginationOutput<ConsultationDto>>> GetConsultations([FromQuery] GetDoctorConsultationsParams param)
         {
             try
             {
@@ -178,7 +180,7 @@ namespace HealthMed.Gateway.Controllers
                 var resp = await response.Content.ReadAsStringAsync();
                 if (!string.IsNullOrEmpty(resp))
                 {
-                    return StatusCode((int)response.StatusCode, JsonConvert.DeserializeObject<Dictionary<string, object>>(resp));
+                    return StatusCode((int)response.StatusCode, JsonConvert.DeserializeObject<PaginationOutput<ConsultationDto>>(resp));
                 }
                 else
                 {
@@ -194,7 +196,7 @@ namespace HealthMed.Gateway.Controllers
 
         [HttpGet]
         [Route("pendingConsultations")]
-        public async Task<ActionResult> GetPendingConsultations([FromQuery] GetPendingConsultationsParams param)
+        public async Task<ActionResult<PaginationOutput<ConsultationDto>>> GetPendingConsultations([FromQuery] GetPendingConsultationsParams param)
         {
             try
             {
@@ -231,7 +233,7 @@ namespace HealthMed.Gateway.Controllers
                 var resp = await response.Content.ReadAsStringAsync();
                 if (!string.IsNullOrEmpty(resp))
                 {
-                    return StatusCode((int)response.StatusCode, JsonConvert.DeserializeObject<Dictionary<string, object>>(resp));
+                    return StatusCode((int)response.StatusCode, JsonConvert.DeserializeObject<PaginationOutput<ConsultationDto>>(resp));
                 }
                 else
                 {
@@ -247,7 +249,7 @@ namespace HealthMed.Gateway.Controllers
 
         [HttpGet]
         [Route("{doctorId}")]
-        public async Task<ActionResult> GetDoctorSchedule([FromQuery] GetDoctorScheduleParams param, Guid doctorId)
+        public async Task<ActionResult<PaginationOutput<ScheduleInfoDto>>> GetDoctorSchedule([FromQuery] GetDoctorScheduleParams param, Guid doctorId)
         {
             try
             {
@@ -284,7 +286,7 @@ namespace HealthMed.Gateway.Controllers
                 var resp = await response.Content.ReadAsStringAsync();
                 if (!string.IsNullOrEmpty(resp))
                 {
-                    return StatusCode((int)response.StatusCode, JsonConvert.DeserializeObject<Dictionary<string, object>>(resp));
+                    return StatusCode((int)response.StatusCode, JsonConvert.DeserializeObject<PaginationOutput<ScheduleInfoDto>>(resp));
                 }
                 else
                 {
@@ -300,7 +302,7 @@ namespace HealthMed.Gateway.Controllers
 
         [HttpGet]
         [Route("")]
-        public async Task<ActionResult> List([FromQuery] ListDoctorQueryParams param)
+        public async Task<ActionResult<PaginationOutput<DoctorDto>>> List([FromQuery] ListDoctorQueryParams param)
         {
             try
             {
@@ -338,7 +340,7 @@ namespace HealthMed.Gateway.Controllers
                 var resp = await response.Content.ReadAsStringAsync();
                 if (!string.IsNullOrEmpty(resp))
                 {
-                    return StatusCode((int)response.StatusCode, JsonConvert.DeserializeObject<Dictionary<string, object>>(resp));
+                    return StatusCode((int)response.StatusCode, JsonConvert.DeserializeObject<PaginationOutput<DoctorDto>>(resp));
                 }
                 else
                 {

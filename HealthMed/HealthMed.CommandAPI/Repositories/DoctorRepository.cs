@@ -139,8 +139,24 @@ namespace HealthMed.CommandAPI.Repositories
         {
             try
             {
-                var connectionString = _configuration.GetConnectionString("DefaultConnection");
-                await using (var con = new SqlConnection(connectionString))
+                var schedules = await GetWorkDays(schedule.DoctorId);
+                if (schedules != null)
+                {
+                    var originalSchedule = schedules.FirstOrDefault(x => x.DayOfWeek == schedule.DayOfWeek && x.DoctorId == schedule.DoctorId);
+                    if (originalSchedule != null)
+                    {
+                        originalSchedule.UpdateTime = DateTime.Now;
+                        originalSchedule.StartTime = schedule.StartTime;
+                        originalSchedule.EndTime = schedule.EndTime;
+                        await using (var con = new SqlConnection(_configuration.GetConnectionString("DefaultConnection")))
+                        {
+                            await con.UpdateAsync(originalSchedule);
+                        }
+                        return originalSchedule;
+                    }
+                }
+
+                await using (var con = new SqlConnection(_configuration.GetConnectionString("DefaultConnection")))
                 {
                     await con.InsertAsync(schedule);
                 }

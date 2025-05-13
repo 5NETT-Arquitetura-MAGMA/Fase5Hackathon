@@ -79,7 +79,8 @@ namespace HealthMed.QueryAPI.Controllers
                             ScheduleTime = consultation.ScheduleTime,
                             Status = consultation.Status,
                             CreationTime = consultation.CreationTime,
-                            UpdateTime = consultation.UpdateTime
+                            UpdateTime = consultation.UpdateTime,
+                            StatusStr = GetStrStatus(consultation.Status)
                         });
                     }
                     output.PageSize = param.PageSize;
@@ -153,7 +154,8 @@ namespace HealthMed.QueryAPI.Controllers
                             ScheduleTime = consultation.ScheduleTime,
                             Status = consultation.Status,
                             CreationTime = consultation.CreationTime,
-                            UpdateTime = consultation.UpdateTime
+                            UpdateTime = consultation.UpdateTime,
+                            StatusStr = GetStrStatus(consultation.Status)
                         });
                     }
                     output.PageSize = param.PageSize;
@@ -358,6 +360,27 @@ namespace HealthMed.QueryAPI.Controllers
             {
                 _logger.LogError(ex, ex.Message);
                 return StatusCode(500, new { message = "Ocorreu um erro inesperado" });
+            }
+        }
+
+        private string GetStrStatus(ConsultationStatus status)
+        {
+            switch (status)
+            {
+                case ConsultationStatus.PendingConfirmation:
+                    return "Pendente Confirmação";
+
+                case ConsultationStatus.Confirmed:
+                    return "Confirmado";
+
+                case ConsultationStatus.Rejected:
+                    return "Rejeitado";
+
+                case ConsultationStatus.Canceled:
+                    return "Cancelado";
+
+                default:
+                    return "";
             }
         }
     }
