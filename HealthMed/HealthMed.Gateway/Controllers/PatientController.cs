@@ -68,7 +68,7 @@ namespace HealthMed.Gateway.Controllers
                 {
                     return StatusCode(401);
                 }
-                var url = Flurl.Url.Combine(_configuration["Command"], "patient", "cancelConsultation");
+                var url = Flurl.Url.Combine(_configuration["Command"], "patient", "scheduleConsultation");
 
                 var client = new HttpClient();
                 var request = new HttpRequestMessage(HttpMethod.Post, url);
